@@ -4,7 +4,14 @@ import { useEffect, useState, useRef } from "react";
 import { supplyMono, supplySans } from "./fonts";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { Menu } from "lucide-react";
+import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
+import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
+import { Cross, CrossIcon, Menu, MenuIcon, X } from "lucide-react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(MorphSVGPlugin);
+  gsap.registerPlugin(ScrambleTextPlugin);
+}
 
 const ASSETS = [
   { key: "first_video", url: "/first.mp4" },
@@ -14,7 +21,7 @@ const ASSETS = [
 ];
 
 const cells = [
-  { key: 0, string: "sAMMY" },
+  { key: 0, string: "Samarth Kapse" },
   { key: 5, string: "Work" },
   { key: 6, string: "Mute" },
   { key: 28, string: "Contact" }
@@ -28,6 +35,7 @@ export default function Page() {
   const [isIntroEnded, setIsIntroEnded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioIntroRef = useRef<HTMLAudioElement>(null);
@@ -158,11 +166,127 @@ export default function Page() {
     });
   };
 
-  useGSAP(() => {
-    if (isIntroEnded) {
-      triggerScramble('.head-name', 'SAMMY');
-    }
-  }, [isIntroEnded]);
+  const openMenu = () => {
+    gsap.fromTo(".top-bottom", {
+      opacity: 1
+    }, {
+      opacity: 0
+    })
+    gsap.fromTo(
+      ".top-overlay",
+      {
+        x: "-100%",
+        opacity: 0,
+      },
+      {
+        x: "0%",
+        opacity: 1,
+        duration: 1.5,
+        ease: "power3.out",
+      }
+    );
+    gsap.to("#menu-icon-path", {
+      duration: 1.5,
+      morphSVG: "#cross-icon-path"
+    })
+    gsap.to(".hover-text", {
+      duration: 1.5,
+      scrambleText: {
+        text: "READ ABOUT ME",
+        chars: "5?QA.?!@#*()_+=-{}[]|\\;:/?.><,1234567890",
+      }
+    })
+    gsap.fromTo(
+      ".lower-loading-bar",
+      {
+        width: "0%",
+        opacity: 0
+      },
+      {
+        duration: 1.5,
+        width: "100%",
+        opacity: 1,
+        backgroundColor: "#ffffff",
+        ease: "power3.out",
+      }
+    );
+    gsap.to(".side-loading-bar span", {
+      color: "rgba(255,255,255,1)",
+      duration: 0.1,
+      stagger: 0.1,
+      ease: "power2.out",
+    });
+    const counter = { value: 0 };
+
+    gsap.to(counter, {
+      value: 100,
+      duration: 1,
+      ease: "power1.out",
+      onUpdate: () => {
+        document.querySelector(".hover-percentage").textContent =
+          `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
+      }
+    });
+
+  };
+
+  const closeMenu = () => {
+    gsap.fromTo(".top-bottom", {
+      opacity: 0
+    }, {
+      opacity: 1
+    })
+    gsap.fromTo(".top-overlay", {
+      x: "0%",
+      opacity: 1
+    }, {
+      x: "-100%",
+      opacity: 0,
+      duration: 1.5,
+      ease: "power3.out"
+    })
+    gsap.to("#menu-icon-path", {
+      duration: 1.5,
+      morphSVG: "#menu-icon-path-data"
+    })
+    gsap.to(".hover-text", {
+      duration: 1.5,
+      scrambleText: {
+        text: "HOVER TO EXPLORE",
+        chars: "5?QA.?!@#*()_+=-{}[]|\\;:/?.><,1234567890",
+      }
+    })
+    gsap.to(
+      ".lower-loading-bar",
+      {
+        duration: 1.5,
+        width: "0%",
+        opacity: 0,
+        ease: "power3.out",
+      }
+    );
+    gsap.to(".side-loading-bar span", {
+      color: "rgba(255,255,255,0.1)",
+      duration: 0.1,
+      stagger: {
+        each: 0.05,
+        from: "end"
+      },
+      ease: "power2.out",
+    });
+    const counter = { value: 100 };
+
+    gsap.to(counter, {
+      value: 0,
+      duration: 1,
+      ease: "power1.out",
+      onUpdate: () => {
+        document.querySelector(".hover-percentage").textContent =
+          `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
+      }
+    });
+  }
+
 
   return (
     <main className={`${supplySans.className} h-screen w-full text-white overflow-hidden`}>
@@ -254,33 +378,60 @@ export default function Page() {
                     ${cellClass}
                     border border-white/25
                     col-span-2 relative
-                    flex flex-row items-start justify-start
+                    items-start justify-start
                     pointer-events-auto overflow-hidden`}
                   onMouseEnter={() => {
-                    if (cellData) triggerScramble(`.${cellClass}-name`, cellData.string);
+                    if (cellData) openMenu();
+                  }}
+                  onMouseLeave={() => {
+                    closeMenu();
                   }}>
-                  <div className="w-full pt-8 px-8">
-                    <div className="flex justify-between items-center text-[8px] opacity-40 font-mono tracking-[0.4em]">
-                      <span>HOVER TO EXPLORE</span>
-                      <span>[000]</span>
+                  {/* Content Layer - Primary Visibility */}
+                  <div style={{ zIndex: 20 }} className="w-full h-full p-8 pr-32 absolute top-0 left-0 flex flex-col justify-between pointer-events-none">
+                    <div className="flex justify-between items-center text-[9px] opacity-40 font-mono tracking-[0.5em]">
+                      <span className="hover-text">HOVER TO EXPLORE</span>
+                      <span className="hover-percentage">[000]</span>
                     </div>
 
-                    {/* Main Name */}
-                    <h2 className={`font-sans ${cellClass}-name text-3xl md:text-5xl font-bold tracking-[0.3em] uppercase mt-8 leading-none`}>
-                      {cellData ? cellData.string : "SAMMY"}
-                    </h2>
+                    <div className="w-full pb-4">
+                      <h2 className={`font-sans ${cellClass}-name text-2xl font-bold tracking-[0.15em] uppercase leading-[0.8] mt-8`}>
+                        {cellData ? cellData.string : "Samarth"}
+                      </h2>
 
-                    {/* Bottom Line decoration */}
-                    <div className="w-4/5 flex items-center gap-4 opacity-20">
-                      <div className="h-px bg-white flex-grow" />
-                      <span className="text-[10px] tracking-[0.5em]">....</span>
+                      {/* Bottom Line decoration */}
+                      <div className="w-full flex items-center gap-6 pointer-events-auto h-4">
+                        <div className="h-0.5 bg-white/10 grow relative overflow-hidden">
+                          <div className="lower-loading-bar absolute left-0 top-0 h-full bg-white opacity-0 w-0" />
+                        </div>
+                        <div className="side-loading-bar flex items-center gap-[0.35em] text-[18px] font-bold text-white/10 leading-none">
+                          <span>.</span><span>.</span><span>.</span><span>.</span><span>.</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="ml-auto p-8 border-l border-white/25 h-full flex items-center justify-center">
-                    <Menu />
+
+                  {/* Overlays and Backgrounds */}
+                  <div style={{ zIndex: 10 }} className="top-overlay absolute inset-0 opacity-0 bg-white/40 pointer-events-none"></div>
+                  <div style={{ zIndex: 0 }} className="top-bottom absolute inset-0 pointer-events-none"></div>
+
+                  {/* Icon Layer - Highest interaction priority */}
+                  <div style={{ zIndex: 30 }} className="absolute right-0 top-0 h-full w-28 border-l border-white/25 flex items-center justify-center pointer-events-auto">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path id="menu-icon-path" d="M3 12h18M3 6h18M3 18h18" />
+                      <path id="cross-icon-path" d="M18 6L6 18M6 6l12 12" className="hidden" />
+                      <path id="menu-icon-path-data" d="M3 12h18M3 6h18M3 18h18" className="hidden" />
+                    </svg>
                   </div>
                 </div>
-
               );
             }
 
@@ -323,13 +474,15 @@ export default function Page() {
       </div>
 
       {/* Mute Toggle */}
-      {hasInteracted && (
-        <button className="mute-button" onClick={toggleMute}>
-          {isMuted ? "Audio Off" : "Audio On"}
-        </button>
-      )}
+      {
+        hasInteracted && (
+          <button className="mute-button" onClick={toggleMute}>
+            {isMuted ? "Audio Off" : "Audio On"}
+          </button>
+        )
+      }
 
       <div ref={cursorRef} className="custom-cursor" />
-    </main>
+    </main >
   );
 }
