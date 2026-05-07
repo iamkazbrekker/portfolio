@@ -1,0 +1,46 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <rect width="512" height="512"/>
+
+  <!-- Center Dot -->
+  <circle cx="256" cy="256" r="32" fill="#ffffff" fill-opacity="0.8"/>
+
+  <!-- Top Left -->
+  <path
+    d="M120 180 L190 110 M120 180 L150 185 M190 110 L195 140"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Top Right -->
+  <path
+    d="M392 180 L322 110 M392 180 L362 185 M322 110 L317 140"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Bottom Left -->
+  <path
+    d="M120 332 L190 402 M120 332 L150 327 M190 402 L195 372"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Bottom Right -->
+  <path
+    d="M392 332 L322 402 M392 332 L362 327 M322 402 L317 372"
+    stroke="#ffffff"
+    stroke-opacity="0.5"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
