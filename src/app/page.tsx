@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
-import { Cross, CrossIcon, Menu, MenuIcon, X } from "lucide-react";
+import { Cross, CrossIcon, Menu, MenuIcon } from "lucide-react";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(MorphSVGPlugin);
@@ -22,8 +22,6 @@ const ASSETS = [
 
 const cells = [
   { key: 0, string: "Samarth Kapse" },
-  { key: 5, string: "Work" },
-  { key: 6, string: "Mute" },
   { key: 28, string: "Contact" }
 ]
 
@@ -36,6 +34,8 @@ export default function Page() {
   const [isMuted, setIsMuted] = useState(false);
   const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
+  const [workOpen, setWorkOpen] = useState(false);
+
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioIntroRef = useRef<HTMLAudioElement>(null);
@@ -167,11 +167,29 @@ export default function Page() {
   };
 
   const openMenu = () => {
-    gsap.fromTo(".top-bottom", {
+    if (menuOpen) return;
+
+    let t1 = gsap.timeline({
+      onComplete: () => {
+        setMenuOpen(true);
+      }
+    });
+    t1.fromTo(".top-bottom", {
       opacity: 1
     }, {
-      opacity: 0
+      opacity: 0,
+      duration: 1.5
     })
+      .fromTo(".menu-div", {
+        opacity: 0,
+        scaleY: 0,
+        transformOrigin: "top center"
+      }, {
+        opacity: 1,
+        scaleY: 1,
+        duration: 1,
+        ease: "power3.out"
+      })
     gsap.fromTo(
       ".top-overlay",
       {
@@ -223,69 +241,150 @@ export default function Page() {
       duration: 1,
       ease: "power1.out",
       onUpdate: () => {
-        document.querySelector(".hover-percentage").textContent =
-          `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
+        const el = document.querySelector(".hover-percentage");
+        if (el) {
+          el.textContent = `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
+        }
       }
     });
 
   };
 
   const closeMenu = () => {
-    gsap.fromTo(".top-bottom", {
-      opacity: 0
-    }, {
-      opacity: 1
-    })
-    gsap.fromTo(".top-overlay", {
-      x: "0%",
-      opacity: 1
-    }, {
-      x: "-100%",
-      opacity: 0,
-      duration: 1.5,
-      ease: "power3.out"
-    })
-    gsap.to("#menu-icon-path", {
-      duration: 1.5,
-      morphSVG: "#menu-icon-path-data"
-    })
-    gsap.to(".hover-text", {
-      duration: 1.5,
-      scrambleText: {
-        text: "HOVER TO EXPLORE",
-        chars: "5?QA.?!@#*()_+=-{}[]|\\;:/?.><,1234567890",
+    if (!menuOpen) return;
+    const counter = { value: 100 };
+    let t2 = gsap.timeline({
+      onComplete: () => {
+        setMenuOpen(false)
       }
     })
-    gsap.to(
-      ".lower-loading-bar",
-      {
+    t2.fromTo(".menu-div", {
+      opacity: 1,
+      scaleY: 1,
+      transformOrigin: "top center"
+    }, {
+      opacity: 0,
+      scaleY: 0,
+      duration: 1,
+      ease: "power3.out"
+    })
+      .fromTo(".top-bottom", {
+        opacity: 0
+      }, {
+        opacity: 1,
+        duration: 1.5
+      })
+      .fromTo(".top-overlay", {
+        x: "0%",
+        opacity: 1
+      }, {
+        x: "-100%",
+        opacity: 0,
+        duration: 1.5,
+        ease: "power3.out"
+      }, "<")
+      .to("#menu-icon-path", {
+        duration: 1.5,
+        morphSVG: "#menu-icon-path-data"
+      }, "<")
+      .to(".hover-text", {
+        duration: 1.5,
+        scrambleText: {
+          text: "HOVER TO EXPLORE",
+          chars: "5?QA.?!@#*()_+=-{}[]|\\;:/?.><,1234567890",
+        }
+      }, "<")
+      .to(".lower-loading-bar", {
         duration: 1.5,
         width: "0%",
         opacity: 0,
         ease: "power3.out",
-      }
-    );
-    gsap.to(".side-loading-bar span", {
-      color: "rgba(255,255,255,0.1)",
-      duration: 0.1,
-      stagger: {
-        each: 0.05,
-        from: "end"
-      },
-      ease: "power2.out",
-    });
-    const counter = { value: 100 };
-
-    gsap.to(counter, {
-      value: 0,
-      duration: 1,
-      ease: "power1.out",
-      onUpdate: () => {
-        document.querySelector(".hover-percentage").textContent =
-          `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
-      }
-    });
+      }, "<")
+      .to(".side-loading-bar span", {
+        color: "rgba(255,255,255,0.1)",
+        duration: 0.1,
+        stagger: {
+          each: 0.05,
+          from: "end"
+        },
+        ease: "power2.out",
+      }, "<")
+      .to(counter, {
+        value: 0,
+        duration: 1,
+        ease: "power1.out",
+        onUpdate: () => {
+          const el = document.querySelector(".hover-percentage");
+          if (el) {
+            el.textContent = `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
+          }
+        }
+      }, "<");
   }
+
+  const openWork = () => {
+    if (workOpen) return;
+    setWorkOpen(true);
+
+    let tw1 = gsap.timeline();
+    
+    tw1.to(".work-div", {
+      scaleY: "100%",
+      duration: 1,
+      ease: "power2.out",
+    })
+      .fromTo(".work-showcase-1", {
+        scaleX: "0%",
+        opacity: 0,
+        transformOrigin: "left center"
+      }, {
+        opacity: 1,
+        scaleX: "100%",
+        duration: 0.8,
+        ease: "power4.out",
+      })
+      .fromTo(".work-showcase-2", {
+        scaleX: "0%",
+        opacity: 0,
+        transformOrigin: "right center"
+      }, {
+        opacity: 1,
+        scaleX: "100%",
+        duration: 0.8,
+        ease: "power4.out",
+      }, "<")
+      .to(".work-div", {
+        scaleY: "0%",
+        duration: 0.4,
+        ease: "power2.in",
+      });
+  };
+
+  const closeWork = () => {
+    if (!workOpen) return;
+    
+    let tw2 = gsap.timeline({
+      onComplete: () => {
+        setWorkOpen(false)
+      }
+    })
+
+    tw2.to(".work-showcase-1", {
+      scaleX: "0%",
+      opacity: 0,
+      duration: 0.6,
+      transformOrigin: "left center",
+      ease: "power3.in"
+    })
+    .to(".work-showcase-2", {
+      scaleX: "0%",
+      opacity: 0,
+      duration: 0.6,
+      transformOrigin: "right center",
+      ease: "power3.in"
+    }, "<")
+  };
+
 
 
   return (
@@ -364,7 +463,6 @@ export default function Page() {
           {Array.from({ length: 35 }).map((_, i) => {
             if (i === 1) return null;
 
-            // First cell spans 2 columns
             const isMergedCell = i === 0;
 
             const cellData = cells.find(c => c.key === i);
@@ -382,11 +480,8 @@ export default function Page() {
                     pointer-events-auto overflow-hidden`}
                   onMouseEnter={() => {
                     if (cellData) openMenu();
-                  }}
-                  onMouseLeave={() => {
-                    closeMenu();
                   }}>
-                  {/* Content Layer - Primary Visibility */}
+
                   <div style={{ zIndex: 20 }} className="w-full h-full p-8 pr-32 absolute top-0 left-0 flex flex-col justify-between pointer-events-none">
                     <div className="flex justify-between items-center text-[9px] opacity-40 font-mono tracking-[0.5em]">
                       <span className="hover-text">HOVER TO EXPLORE</span>
@@ -398,7 +493,7 @@ export default function Page() {
                         {cellData ? cellData.string : "Samarth"}
                       </h2>
 
-                      {/* Bottom Line decoration */}
+
                       <div className="w-full flex items-center gap-6 pointer-events-auto h-4">
                         <div className="h-0.5 bg-white/10 grow relative overflow-hidden">
                           <div className="lower-loading-bar absolute left-0 top-0 h-full bg-white opacity-0 w-0" />
@@ -410,30 +505,65 @@ export default function Page() {
                     </div>
                   </div>
 
-                  {/* Overlays and Backgrounds */}
+
                   <div style={{ zIndex: 10 }} className="top-overlay absolute inset-0 opacity-0 bg-white/40 pointer-events-none"></div>
                   <div style={{ zIndex: 0 }} className="top-bottom absolute inset-0 pointer-events-none"></div>
 
-                  {/* Icon Layer - Highest interaction priority */}
                   <div style={{ zIndex: 30 }} className="absolute right-0 top-0 h-full w-28 border-l border-white/25 flex items-center justify-center pointer-events-auto">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path id="menu-icon-path" d="M3 12h18M3 6h18M3 18h18" />
-                      <path id="cross-icon-path" d="M18 6L6 18M6 6l12 12" className="hidden" />
-                      <path id="menu-icon-path-data" d="M3 12h18M3 6h18M3 18h18" className="hidden" />
-                    </svg>
+                    <button onClick={closeMenu}>
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path id="menu-icon-path" d="M3 12h18M3 6h18M3 18h18" />
+                        <path id="cross-icon-path" d="M18 6L6 18M6 6l12 12" className="hidden" />
+                        <path id="menu-icon-path-data" d="M3 12h18M3 6h18M3 18h18" className="hidden" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               );
             }
+
+            if (i == 6) {
+              return (
+                hasInteracted && (
+                  <div
+                    key={i}
+                    className={`${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest  pointer-events-auto`}
+                    onClick={toggleMute}
+                    onMouseOver={() => {
+                      triggerScramble(`.${cellClass}`, `${isMuted ? "Audio Off" : "Audio On"}`);
+                    }}
+                    onMouseLeave={() => {
+                      triggerScramble(`.${cellClass}`, `${isMuted ? "Audio Off" : "Audio On"}`);
+                    }}
+                  >
+                    {isMuted ? "Audio Off" : "Audio On"}
+                  </div>
+                )
+              )
+            }
+
+            if (i == 5) {
+              return (
+                <div
+                  key={i}
+                  className={`work-trigger-cell ${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest pointer-events-auto cursor-pointer relative overflow-hidden`}
+                  onMouseEnter={openWork}
+                >
+                  <div className="work-div absolute inset-0 bg-white scale-y-0 origin-bottom pointer-events-none" />
+                  <span className="relative z-10 mix-blend-difference">Work</span>
+                </div>
+              )
+            }
+
 
             return (
               <div
@@ -456,6 +586,36 @@ export default function Page() {
               </div>
             );
           })}
+          <div className="menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-2 row-end-6 bg-white border border-white/25 z-30" />
+          <div className={`work-showcase work-showcase-1 opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-white text-black border border-black/10 z-50 flex flex-col p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <div className="flex justify-between items-start w-full">
+              <h3 className="text-4xl font-bold tracking-tighter uppercase leading-none">Projects</h3>
+            </div>
+            <div className="mt-10 flex flex-col gap-6 overflow-y-auto pr-4">
+              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all">
+                <span className="text-[10px] opacity-40 font-mono">[2024]</span>
+                <h4 className="text-2xl font-bold uppercase tracking-tighter">Aura Studio</h4>
+              </div>
+              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
+                <span className="text-[10px] opacity-40 font-mono">[2023]</span>
+                <h4 className="text-2xl font-bold uppercase tracking-tighter">Nexus Dashboard</h4>
+              </div>
+              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
+                <span className="text-[10px] opacity-40 font-mono">[2023]</span>
+                <h4 className="text-2xl font-bold uppercase tracking-tighter">Vortex UI</h4>
+              </div>
+            </div>
+          </div>
+          <div className={`work-showcase work-showcase-2 opacity-0 absolute inset-0 col-start-3 col-end-8 row-start-1 row-end-6 bg-zinc-100 text-black border border-black/10 z-50 flex items-center justify-center overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <button 
+              onClick={closeWork} 
+              className="absolute top-10 right-10 p-2 hover:rotate-90 transition-all duration-500 group"
+            >
+              <img src="/x-scan.svg" alt="Close" className="w-10 h-10 opacity-60 group-hover:opacity-100 transition-opacity" />
+            </button>
+            <span className="text-[10px] opacity-20 font-mono uppercase tracking-[1em] rotate-90">Preview Interface</span>
+          </div>
+
         </div>
 
         {/* Optional dark vignette */}
@@ -473,14 +633,6 @@ export default function Page() {
         </p> */}
       </div>
 
-      {/* Mute Toggle */}
-      {
-        hasInteracted && (
-          <button className="mute-button" onClick={toggleMute}>
-            {isMuted ? "Audio Off" : "Audio On"}
-          </button>
-        )
-      }
 
       <div ref={cursorRef} className="custom-cursor" />
     </main >
