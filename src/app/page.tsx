@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
-import { Cross, CrossIcon, Menu, MenuIcon } from "lucide-react";
+import { Cross, CrossIcon, Menu, MenuIcon, Scan } from "lucide-react";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(MorphSVGPlugin);
@@ -134,7 +134,7 @@ export default function Page() {
           yPercent: -50,
           duration: 0.1,
           ease: "power2.out",
-          overwrite: true
+          overwrite: "auto"
         });
       }
     };
@@ -190,6 +190,25 @@ export default function Page() {
         duration: 1,
         ease: "power3.out"
       })
+      .fromTo(
+        ".menu-image",
+        {
+          scale: 0.65,
+          opacity: 0,
+          transformOrigin: "center center"
+        },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.2,
+          ease: "power1.in"
+        }
+      )
+    gsap.to(".custom-cursor", {
+      rotate: 45,
+      duration: 0.5,
+      ease: "power2.out"
+    })
     gsap.fromTo(
       ".top-overlay",
       {
@@ -283,6 +302,11 @@ export default function Page() {
         duration: 1.5,
         ease: "power3.out"
       }, "<")
+      .to(".custom-cursor", {
+        rotate: 0,
+        duration: 1,
+        ease: "power3.out"
+      }, "<")
       .to("#menu-icon-path", {
         duration: 1.5,
         morphSVG: "#menu-icon-path-data"
@@ -327,10 +351,10 @@ export default function Page() {
     setWorkOpen(true);
 
     let tw1 = gsap.timeline();
-    
+
     tw1.to(".work-div", {
       scaleY: "100%",
-      duration: 1,
+      duration: 1.2,
       ease: "power2.out",
     })
       .fromTo(".work-showcase-1", {
@@ -340,7 +364,7 @@ export default function Page() {
       }, {
         opacity: 1,
         scaleX: "100%",
-        duration: 0.8,
+        duration: 1,
         ease: "power4.out",
       })
       .fromTo(".work-showcase-2", {
@@ -348,10 +372,15 @@ export default function Page() {
         opacity: 0,
         transformOrigin: "right center"
       }, {
-        opacity: 1,
+        opacity: 0.95,
         scaleX: "100%",
         duration: 0.8,
         ease: "power4.out",
+      }, "<")
+      .to(".custom-cursor", {
+        rotate: 45,
+        duration: 0.8,
+        ease: "power4.out"
       }, "<")
       .to(".work-div", {
         scaleY: "0%",
@@ -362,7 +391,7 @@ export default function Page() {
 
   const closeWork = () => {
     if (!workOpen) return;
-    
+
     let tw2 = gsap.timeline({
       onComplete: () => {
         setWorkOpen(false)
@@ -376,15 +405,49 @@ export default function Page() {
       transformOrigin: "left center",
       ease: "power3.in"
     })
-    .to(".work-showcase-2", {
-      scaleX: "0%",
-      opacity: 0,
-      duration: 0.6,
-      transformOrigin: "right center",
-      ease: "power3.in"
-    }, "<")
+      .to(".work-showcase-2", {
+        scaleX: "0%",
+        opacity: 0,
+        duration: 0.6,
+        transformOrigin: "right center",
+        ease: "power3.in"
+      }, "<")
+      .to(".custom-cursor", {
+        rotate: 0,
+        duration: 0.6,
+        ease: "power3.in"
+      }, "<")
   };
 
+  const scanXAnimationEnter = () => {
+    gsap.to(".scan-close-icon", {
+      scale: 1.2,
+      stroke: "#ff3b3b",
+      duration: 0.4,
+      ease: "power2.out"
+    })
+
+    gsap.to(".scan-close-x", {
+      rotate: 90,
+      transformOrigin: "center center",
+      duration: 0.4,
+      ease: "power2.out"
+    });
+  }
+  const scanXAnimationLeave = () => {
+    gsap.to(".scan-close-icon", {
+      scale: 1,
+      stroke: "#b8b8b8",
+      duration: 0.4,
+      ease: "power2.out"
+    })
+    gsap.to(".scan-close-x", {
+      rotate: -90,
+      transformOrigin: "center center",
+      duration: 0.4,
+      ease: "power2.out"
+    })
+  }
 
 
   return (
@@ -472,12 +535,7 @@ export default function Page() {
               return (
                 <div
                   key={i}
-                  className={`
-                    ${cellClass}
-                    border border-white/25
-                    col-span-2 relative
-                    items-start justify-start
-                    pointer-events-auto overflow-hidden`}
+                  className={`${cellClass} border border-white/25 col-span-2 relative items-start justify-start pointer-events-auto overflow-hidden`}
                   onMouseEnter={() => {
                     if (cellData) openMenu();
                   }}>
@@ -569,12 +627,12 @@ export default function Page() {
               <div
                 key={i}
                 className={`
-          ${cellClass}
-          border border-white/25
-          flex items-center justify-center text-[15px] uppercase tracking-widest
-          ${isMergedCell ? "col-span-2" : ""}
-          pointer-events-auto
-        `}
+    ${cellClass}
+    border border-white/25
+    flex items-center justify-center text-[15px] uppercase tracking-widest
+    ${isMergedCell ? "col-span-2" : ""}
+    pointer-events-auto
+  `}
                 onMouseOver={() => {
                   if (cellData) triggerScramble(`.${cellClass}`, cellData.string);
                 }}
@@ -586,8 +644,53 @@ export default function Page() {
               </div>
             );
           })}
-          <div className="menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-2 row-end-6 bg-white border border-white/25 z-30" />
-          <div className={`work-showcase work-showcase-1 opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-white text-black border border-black/10 z-50 flex flex-col p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+          <div className="menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-2 row-end-6 bg-white border text-black border-white/25 z-30">
+            <div className="menu-section-1 border-gray-900 border-b py-3 w-full pt-5">
+              <div className="flex flex-row justify-between pl-6 pr-2">
+                <div className="img-div relative p-1">
+                  <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-black" />
+                  <div className="absolute top-0 right-0 w-1 h-1 border-t border-r border-black" />
+                  <div className="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-black" />
+                  <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-black" />
+
+                  <div className="w-full h-full flex items-center justify-center relative">
+
+                    {/* Center Image */}
+                    <img
+                      src="./Samarth pfp.jpeg"
+                      className="menu-image w-80 h-45 object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="relative p-1">
+                  <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-black" />
+                  <div className="absolute top-0 right-0 w-1 h-1 border-t border-r border-black" />
+                  <div className="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-black" />
+                  <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-black" />
+
+                  <div className="flex flex-col bg-[#363434] text-white px-2 py-3 gap-1 tracking-widest h-full">
+                    <span>S</span>
+                    <span>C</span>
+                    <span>R</span>
+                    <span>O</span>
+                    <span>L</span>
+                    <span>L</span>
+                  </div>
+                </div>
+              </div>
+              <div className="font-mono py-2.5 uppercase text-[12px] pl-6 w-90">
+                <div>Hey! I'm Samarth, a creative developer who dibble dabbles in a little bit of...everything.</div>
+                <button><div className="text-[#ff0000] text-[12px] font-mono uppercase">[Read More]</div></button>
+              </div>
+
+            </div>
+            <div>Expertise</div>
+            <div>Tech Stack</div>
+            <div>Acheivments</div>
+            <div>One Liner</div>
+            <div>Connect With Me</div>
+          </div>
+          <div className={`work-showcase work-showcase-1 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-[#090909] opacity-0 text-white border border-white/10 z-50 flex flex-col p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
             <div className="flex justify-between items-start w-full">
               <h3 className="text-4xl font-bold tracking-tighter uppercase leading-none">Projects</h3>
             </div>
@@ -606,12 +709,35 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <div className={`work-showcase work-showcase-2 opacity-0 absolute inset-0 col-start-3 col-end-8 row-start-1 row-end-6 bg-zinc-100 text-black border border-black/10 z-50 flex items-center justify-center overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
-            <button 
-              onClick={closeWork} 
-              className="absolute top-10 right-10 p-2 hover:rotate-90 transition-all duration-500 group"
+          <div className={`work-showcase work-showcase-2 absolute inset-0 col-start-3 col-end-8 row-start-1 row-end-6 bg-[#090909] opacity-0 text-white border border-black/10 z-50 flex items-center justify-center overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <button
+              onClick={closeWork}
+              onMouseEnter={() => { scanXAnimationEnter() }}
+              onMouseLeave={() => { scanXAnimationLeave() }}
+              className="absolute top-10 right-10 p-2 group"
             >
-              <img src="/x-scan.svg" alt="Close" className="w-10 h-10 opacity-60 group-hover:opacity-100 transition-opacity" />
+              <svg
+                className="scan-close-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#b8b8b8"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 6V3a1 1 0 0 1 1-1h3" />
+                <path d="M18 2h3a1 1 0 0 1 1 1v3" />
+                <path d="M22 18v3a1 1 0 0 1-1 1h-3" />
+                <path d="M6 22H3a1 1 0 0 1-1-1v-3" />
+
+                <g className="scan-close-x">
+                  <path d="M15 9L9 15" />
+                  <path d="M9 9L15 15" />
+                </g>
+              </svg>
             </button>
             <span className="text-[10px] opacity-20 font-mono uppercase tracking-[1em] rotate-90">Preview Interface</span>
           </div>
@@ -621,16 +747,16 @@ export default function Page() {
         {/* Optional dark vignette */}
         {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,black_100%)]" /> */}
         {/* <h1
-          onMouseEnter={() => triggerScramble('.head-name', 'SAMMY')}
-          className={`${supplyMono.className} head-name text-7xl md:text-9xl font-bold tracking-tighter uppercase leading-none pointer-events-auto`}
-        >
-          SAMMY
-        </h1>
-        <p
-          className="mt-6 text-sm opacity-40 description-max max-w-xs text-center uppercase tracking-[0.3em] font-mono pointer-events-auto"
-        >
-          Portfolio under construction...
-        </p> */}
+    onMouseEnter={() => triggerScramble('.head-name', 'SAMMY')}
+    className={`${supplyMono.className} head-name text-7xl md:text-9xl font-bold tracking-tighter uppercase leading-none pointer-events-auto`}
+  >
+    SAMMY
+  </h1>
+  <p
+    className="mt-6 text-sm opacity-40 description-max max-w-xs text-center uppercase tracking-[0.3em] font-mono pointer-events-auto"
+  >
+    Portfolio under construction...
+  </p> */}
       </div>
 
 
