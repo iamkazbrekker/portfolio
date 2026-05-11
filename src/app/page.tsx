@@ -6,7 +6,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
-import { Cross, CrossIcon, Menu, MenuIcon, Scan } from "lucide-react";
+import { Cross, CrossIcon, Menu, MenuIcon, Scan, Square } from "lucide-react";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(MorphSVGPlugin);
@@ -626,13 +627,7 @@ export default function Page() {
             return (
               <div
                 key={i}
-                className={`
-    ${cellClass}
-    border border-white/25
-    flex items-center justify-center text-[15px] uppercase tracking-widest
-    ${isMergedCell ? "col-span-2" : ""}
-    pointer-events-auto
-  `}
+                className={`${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest ${isMergedCell ? "col-span-2" : ""} pointer-events-auto`}
                 onMouseOver={() => {
                   if (cellData) triggerScramble(`.${cellClass}`, cellData.string);
                 }}
@@ -644,22 +639,21 @@ export default function Page() {
               </div>
             );
           })}
-          <div className="menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-2 row-end-6 bg-white border text-black border-white/25 z-30">
-            <div className="menu-section-1 border-gray-900 border-b py-3 w-full pt-5">
-              <div className="flex flex-row justify-between pl-6 pr-2">
+          <div className="menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-2 row-end-6 bg-white border text-black z-30 overflow-y-auto scrollbar-hide pointer-events-auto">
+            {/* Section 00 */}
+            {/* <div className="sticky top-0 bg-white z-20 py-3 pt-5 px-4 border-b border-gray-900 flex flex-row justify-between items-center h-14">
+              <div className="h-4 w-4 bg-black " />
+              <p className="text-[18px] uppercase">[00 - Profile]</p>
+            </div> */}
+            <div className="border-b border-gray-900 w-full">
+              <div className="flex flex-row justify-between pl-6 pr-2 pt-5">
                 <div className="img-div relative p-1">
                   <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-black" />
                   <div className="absolute top-0 right-0 w-1 h-1 border-t border-r border-black" />
                   <div className="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-black" />
                   <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-black" />
-
                   <div className="w-full h-full flex items-center justify-center relative">
-
-                    {/* Center Image */}
-                    <img
-                      src="./Samarth pfp.jpeg"
-                      className="menu-image w-80 h-45 object-cover"
-                    />
+                    <img src="./Samarth pfp.jpeg" className="menu-image w-80 h-45 object-cover" />
                   </div>
                 </div>
                 <div className="relative p-1">
@@ -667,98 +661,147 @@ export default function Page() {
                   <div className="absolute top-0 right-0 w-1 h-1 border-t border-r border-black" />
                   <div className="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-black" />
                   <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-black" />
-
-                  <div className="flex flex-col bg-[#363434] text-white px-2 py-3 gap-1 tracking-widest h-full">
-                    <span>S</span>
-                    <span>C</span>
-                    <span>R</span>
-                    <span>O</span>
-                    <span>L</span>
-                    <span>L</span>
+                  <div className="flex flex-col bg-[#363434] text-white px-3 py-3 gap-1 tracking-widest h-full">
+                    <span>S</span><span>C</span><span>R</span><span>O</span><span>L</span><span>L</span>
                   </div>
                 </div>
               </div>
-              <div className="font-mono py-2.5 uppercase text-[12px] pl-6 w-90">
+              <div className="font-mono py-6 uppercase text-[12px] pl-6 pr-6 w-full">
                 <div>Hey! I'm Samarth, a creative developer who dibble dabbles in a little bit of...everything.</div>
-                <button><div className="text-[#ff0000] text-[12px] font-mono uppercase">[Read More]</div></button>
+                <button className="mt-2"><div className="text-[#ff0000] text-[12px] font-mono uppercase hover:underline cursor-pointer">[Read More]</div></button>
               </div>
+            </div>
 
+            {/* Section 01 */}
+            <div className="sticky top-0 bg-white z-20 py-3 pt-5 px-4 border-b border-gray-900 flex flex-row justify-between items-center h-14">
+              <div className="h-4 w-4 bg-black " />
+              <p className="text-[18px] uppercase">[01 - Expertise]</p>
             </div>
-            <div>Expertise</div>
-            <div>Tech Stack</div>
-            <div>Acheivments</div>
-            <div>One Liner</div>
-            <div>Connect With Me</div>
-          </div>
-          <div className={`work-showcase work-showcase-1 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-[#090909] opacity-0 text-white border border-white/10 z-50 flex flex-col p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
-            <div className="flex justify-between items-start w-full">
-              <h3 className="text-4xl font-bold tracking-tighter uppercase leading-none">Projects</h3>
-            </div>
-            <div className="mt-10 flex flex-col gap-6 overflow-y-auto pr-4">
-              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all">
-                <span className="text-[10px] opacity-40 font-mono">[2024]</span>
-                <h4 className="text-2xl font-bold uppercase tracking-tighter">Aura Studio</h4>
+            <div className="border-b border-gray-900 w-full flex flex-row justify-between pt-9 pb-10 font-sans tracking-widest text-[15px] px-4">
+              <div className="flex flex-col gap-2">
+                <span>/Blockchain</span>
+                <span>/UI-UX Design</span>
+                <span>/AI-ML</span>
               </div>
-              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
-                <span className="text-[10px] opacity-40 font-mono">[2023]</span>
-                <h4 className="text-2xl font-bold uppercase tracking-tighter">Nexus Dashboard</h4>
-              </div>
-              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
-                <span className="text-[10px] opacity-40 font-mono">[2023]</span>
-                <h4 className="text-2xl font-bold uppercase tracking-tighter">Vortex UI</h4>
+              <div className="flex flex-col gap-2">
+                <span>/Open CV</span>
+                <span>/Web Animations</span>
+                <span>/Data Structures</span>
               </div>
             </div>
-          </div>
-          <div className={`work-showcase work-showcase-2 absolute inset-0 col-start-3 col-end-8 row-start-1 row-end-6 bg-[#090909] opacity-0 text-white border border-black/10 z-50 flex items-center justify-center overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
-            <button
-              onClick={closeWork}
-              onMouseEnter={() => { scanXAnimationEnter() }}
-              onMouseLeave={() => { scanXAnimationLeave() }}
-              className="absolute top-10 right-10 p-2 group"
-            >
-              <svg
-                className="scan-close-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#b8b8b8"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+
+            {/* Section 02 */}
+            <div className="sticky top-14 bg-white z-20 py-3 pt-5 px-4 border-b border-gray-900 flex flex-row justify-between items-center h-14">
+              <div className="h-4 w-4 bg-black " />
+              <p className="text-[18px] uppercase">[02 - Tech Stack]</p>
+            </div>
+            <div className="border-b border-gray-900 w-full flex flex-row justify-between pt-9 pb-10 font-sans tracking-widest text-[15px] px-4">
+              <div className="flex flex-col gap-2">
+                <span>/TypeScript</span>
+                <span>/HTML-CSS</span>
+                <span>/Python</span>
+                <span>/Javascript</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span>/Solidity</span>
+                <span>/Next.js</span>
+                <span>/GSAP</span>
+                <span>/MongoDB</span>
+              </div>
+            </div>
+
+            {/* Section 03 */}
+            <div className="sticky top-[112px] bg-white z-20 py-3 pt-5 px-4 border-b border-gray-900 flex flex-row justify-between items-center h-14">
+              <div className="h-4 w-4 bg-black " />
+              <p className="text-[18px] uppercase">[03 - Achievements]</p>
+            </div>
+            <div className="border-b border-gray-900 w-full flex flex-col pt-9 pb-10 font-sans tracking-widest text-[14px] px-4 gap-4">
+              <div className="flex flex-col">
+                <span className="text-[10px] opacity-40 mb-1">2026 / VNIT Nagpur</span>
+                <span>Ranked 1st at Insomia - 24 hour hackathon</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] opacity-40 mb-1">2026 / VIT Pune</span>
+                <span>Ranked 1st at Breaking Enigma - 24 hour hackathon</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] opacity-40 mb-1">2026 / NIT Karnataka</span>
+                <span>Ranked 3rd at Hack-ula - 24 hour hackathon</span>
+              </div>
+            </div>
+            <div className="py-3 pt-5 w-full bg-black text-white">
+              <div className="flex flex-row justify-between">
+                <div className="py-15 font-mono font-bold text-3xl text-center uppercase flex justify-center w-full px-10 border-b border-white">
+                  <h1>Building anything and everything that fancies me</h1>
+                </div>
+              </div>
+              <div className="py-8 px-4 flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <div className="h-4.5 w-4.5 bg-white" />
+                  <div className="flex flex-row gap-5 text-[15px] justify-between">
+                    <Link href={'https://github.com/iamkazbrekker'} target="_blank" rel="noopener noreferrer"><span>GITHUB</span></Link>
+                    <Link href={'https://www.linkedin.com/in/ahamsamartha'} target="_blank" rel="noopener noreferrer"><span>LINKDEIN</span></Link>
+                  </div>
+                  <div className="h-4.5 w-4.5 bg-white" />
+                </div>
+              </div>
+            </div>
+            <div className={`work-showcase work-showcase-1 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-[#090909] opacity-0 text-white border border-white/10 z-50 flex flex-col p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+              <div className="flex justify-between items-start w-full">
+                <h3 className="text-4xl font-bold tracking-tighter uppercase leading-none">Projects</h3>
+              </div>
+              <div className="mt-10 flex flex-col gap-6 overflow-y-auto pr-4">
+                <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all">
+                  <span className="text-[10px] opacity-40 font-mono">[2026]</span>
+                  <h4 className="text-2xl font-bold uppercase tracking-tighter">Aura Studio</h4>
+                </div>
+                <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
+                  <span className="text-[10px] opacity-40 font-mono">[2023]</span>
+                  <h4 className="text-2xl font-bold uppercase tracking-tighter">Nexus Dashboard</h4>
+                </div>
+                <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
+                  <span className="text-[10px] opacity-40 font-mono">[2023]</span>
+                  <h4 className="text-2xl font-bold uppercase tracking-tighter">Vortex UI</h4>
+                </div>
+              </div>
+            </div>
+            <div className={`work-showcase work-showcase-2 absolute inset-0 col-start-3 col-end-8 row-start-1 row-end-6 bg-[#090909] opacity-0 text-white border border-black/10 z-50 flex items-center justify-center overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+              <button
+                onClick={closeWork}
+                onMouseEnter={() => { scanXAnimationEnter() }}
+                onMouseLeave={() => { scanXAnimationLeave() }}
+                className="absolute top-10 right-10 p-2 group"
               >
-                <path d="M2 6V3a1 1 0 0 1 1-1h3" />
-                <path d="M18 2h3a1 1 0 0 1 1 1v3" />
-                <path d="M22 18v3a1 1 0 0 1-1 1h-3" />
-                <path d="M6 22H3a1 1 0 0 1-1-1v-3" />
+                <svg
+                  className="scan-close-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#b8b8b8"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M2 6V3a1 1 0 0 1 1-1h3" />
+                  <path d="M18 2h3a1 1 0 0 1 1 1v3" />
+                  <path d="M22 18v3a1 1 0 0 1-1 1h-3" />
+                  <path d="M6 22H3a1 1 0 0 1-1-1v-3" />
 
-                <g className="scan-close-x">
-                  <path d="M15 9L9 15" />
-                  <path d="M9 9L15 15" />
-                </g>
-              </svg>
-            </button>
-            <span className="text-[10px] opacity-20 font-mono uppercase tracking-[1em] rotate-90">Preview Interface</span>
+                  <g className="scan-close-x">
+                    <path d="M15 9L9 15" />
+                    <path d="M9 9L15 15" />
+                  </g>
+                </svg>
+              </button>
+              <span className="text-[10px] opacity-20 font-mono uppercase tracking-[1em] rotate-90">Preview Interface</span>
+            </div>
+
           </div>
 
         </div>
-
-        {/* Optional dark vignette */}
-        {/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,black_100%)]" /> */}
-        {/* <h1
-    onMouseEnter={() => triggerScramble('.head-name', 'SAMMY')}
-    className={`${supplyMono.className} head-name text-7xl md:text-9xl font-bold tracking-tighter uppercase leading-none pointer-events-auto`}
-  >
-    SAMMY
-  </h1>
-  <p
-    className="mt-6 text-sm opacity-40 description-max max-w-xs text-center uppercase tracking-[0.3em] font-mono pointer-events-auto"
-  >
-    Portfolio under construction...
-  </p> */}
       </div>
-
 
       <div ref={cursorRef} className="custom-cursor" />
     </main >
