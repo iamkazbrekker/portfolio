@@ -25,6 +25,14 @@ const cells = [
   { key: 28, string: "Contact" }
 ]
 
+const projects = [
+  { number: 1, name: "Weave", year: 2026, tech: "NextJS, MongoDB, Flutter", type: "Hybrid(App / Website)", description: "A full-stack, multi-platform system built for NGOs and social organizations to manage volunteer deployment, collect field data, track community impact, and respond to emerging crises, all orchestrated by a suite of AI agents.", link: "https://weave-seven-flax.vercel.app/", img: "/projects/weave.png" },
+  { number: 2, name: "Tsukumo", year: 2026, tech: "NextJS, MongoDB, Flask", type: "Web Application", description: "A full-stack autonomous health intelligence platform built to demonstrate the convergence of IoT telemetry, multi-organ ML prediction, agentic AI reasoning, and real-time clinical dispatch.", link: "https://github.com/iamkazbrekker/tsukumo", img: "/projects/tsukumo.png" },
+  { number: 3, name: "DPHRS", year: 2026, tech: "Solidity, NextJS, Hardhat", type: "Web Application", description: "A secure, blockchain-based web application designed to give patients complete ownership and control over their medical data.", link: "https://github.com/iamkazbrekker/dphrs", img: "/projects/dphrs.png" },
+  { number: 4, name: "CitySync", year: 2026, tech: "NextJS, Supabase DB, Baileys", type: "Web Application", description: "A full-stack, AI-augmented civic platform built specifically for Nagpur, India, enabling citizens to report municipal issues (roads, water, electricity) and track their resolution in real time.", link: "https://city-sync-ivory.vercel.app/", img: "/projects/citySync.png" },
+  { number: 5, name: "IRC", year: 2026, tech: "NextJS, WebSockets, MongoDB", type: "Web Application", description: "A modern, real-time chat application built with Next.js, WebSockets, and MongoDB.", link: "https://github.com/iamkazbrekker/irc", img: "/projects/irc.png" }
+]
+
 export default function Page() {
   const [progress, setProgress] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0);
@@ -35,7 +43,14 @@ export default function Page() {
   const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
   const [workOpen, setWorkOpen] = useState(false);
-  const [readMoreOpen, setReadMoreOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false);
+  const [readMoreOpen, setReadMoreOpen] = useState(false);
+  const [activeProject, setActiveProject] = useState<typeof projects[0] | null>(null);
+  const [lastSyncedTime, setLastSyncedTime] = useState("");
+  const [workType, setWorkType] = useState<"CONTRACT" | "FULL TIME">("CONTRACT");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const [contactStatus, setContactStatus] = useState("AWAITING_INPUT");
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -420,6 +435,109 @@ export default function Page() {
       }, "<")
   };
 
+  const submitContactForm = async () => {
+    if (!contactEmail || !contactMessage) {
+      setContactStatus("ERROR: MISSING_INPUT");
+      return;
+    }
+    
+    setContactStatus("TRANSMITTING...");
+    
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: contactEmail,
+          message: contactMessage,
+          type: workType
+        })
+      });
+      
+      if (res.ok) {
+        setContactStatus("TRANSMITTED_SUCCESSFULLY");
+        setContactEmail("");
+        setContactMessage("");
+        setTimeout(() => setContactStatus("AWAITING_INPUT"), 3000);
+      } else {
+        setContactStatus("ERROR: TRANSMISSION_FAILED");
+      }
+    } catch (error) {
+      setContactStatus("ERROR: TRANSMISSION_FAILED");
+    }
+  };
+
+  const openContact = () => {
+    if (contactOpen) return;
+    setContactOpen(true);
+    setLastSyncedTime(new Date().toLocaleTimeString('en-US', { hour12: false }));
+
+    let tw1 = gsap.timeline();
+
+    tw1.to(".contact-div", {
+      scaleY: "100%",
+      duration: 1.2,
+      ease: "power2.out",
+    })
+      .fromTo(".contactme-1", {
+        opacity: 0,
+      }, {
+        opacity: 1,
+        duration: 1,
+        ease: "power2.out",
+        onComplete: () => {
+          triggerScramble(".contact-text-scramble-1", "LET'S COOK");
+          triggerScramble(".contact-text-scramble-2", "SOMETHING");
+        }
+      })
+      .fromTo(".contactme-2", {
+        y: "100%",
+        opacity: 0,
+      }, {
+        y: "0%",
+        opacity: 1,
+        duration: 0.8,
+        ease: "power4.out",
+      }, "<")
+      .to(".custom-cursor", {
+        rotate: 45,
+        duration: 0.8,
+        ease: "power4.out"
+      }, "<")
+      .to(".contact-div", {
+        scaleY: "0%",
+        duration: 0.4,
+        ease: "power2.in",
+      });
+  };
+
+  const closeContact = () => {
+    if (!contactOpen) return;
+
+    let tw2 = gsap.timeline({
+      onComplete: () => {
+        setContactOpen(false)
+      }
+    })
+
+    tw2.to(".contactme-1", {
+      opacity: 0,
+      duration: 0.6,
+      ease: "power3.in"
+    })
+      .to(".contactme-2", {
+        y: "100%",
+        opacity: 0,
+        duration: 0.6,
+        ease: "power3.in"
+      }, "<")
+      .to(".custom-cursor", {
+        rotate: 0,
+        duration: 0.6,
+        ease: "power3.in"
+      }, "<")
+  };
+
   const scanXAnimationEnter = () => {
     gsap.to(".scan-close-icon", {
       scale: 1.2,
@@ -654,6 +772,22 @@ export default function Page() {
             }
 
 
+            if (i == 28) {
+              return (
+                <div
+                  key={i}
+                  className={`contact-trigger-cell ${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest pointer-events-auto cursor-pointer relative overflow-hidden`}
+                  onMouseEnter={() => {
+                    openContact()
+                    triggerScramble(".contact-trigger-text", "CONTACT")
+                  }}
+                >
+                  <div className="contact-div absolute inset-0 bg-white scale-y-0 origin-bottom pointer-events-none" />
+                  <span className="contact-trigger-text relative z-10 mix-blend-difference">Contact</span>
+                </div>
+              )
+            }
+
             return (
               <div
                 key={i}
@@ -811,22 +945,43 @@ export default function Page() {
           </div> */}
 
           <div className={`work-showcase work-showcase-1 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-[#010101] opacity-0 text-white border border-white/10 z-50 flex flex-col justify-center p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
-            <div className="flex justify-between items-start w-full">
+            <div className="flex justify-between items-start w-full absolute top-20">
               <h3 className="text-4xl font-bold tracking-tighter uppercase leading-none">Projects</h3>
             </div>
-            <div className="mt-10 flex flex-col gap-6 overflow-y-auto pr-4">
-              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all">
-                <span className="text-[10px] opacity-40 font-mono">[2026]</span>
-                <h4 className="text-2xl font-bold uppercase tracking-tighter">Aura Studio</h4>
-              </div>
-              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
-                <span className="text-[10px] opacity-40 font-mono">[2023]</span>
-                <h4 className="text-2xl font-bold uppercase tracking-tighter">Nexus Dashboard</h4>
-              </div>
-              <div className="border-b border-black/10 pb-4 group cursor-pointer hover:pl-2 transition-all opacity-40">
-                <span className="text-[10px] opacity-40 font-mono">[2023]</span>
-                <h4 className="text-2xl font-bold uppercase tracking-tighter">Vortex UI</h4>
-              </div>
+            <div
+              className="mt-10 flex flex-col gap-6 overflow-y-auto pr-4"
+              onMouseLeave={() => {
+                setActiveProject(null);
+                triggerScramble(`.project-detail-name`, "—");
+                triggerScramble(`.project-detail-year`, "—");
+                triggerScramble(`.project-detail-type`, "—");
+                triggerScramble(`.project-detail-tech`, "—");
+                triggerScramble(`.project-detail-desc`, "Hover a project to see preview and details.");
+                triggerScramble(`.project-detail-number`, "00");
+              }}
+            >
+              {projects.map((proj) => (
+                <Link key={proj.number} href={proj.link} target="_blank" rel="noopener noreferrer">
+                  <div
+                    className="border-b border-white/10 pb-4 group cursor-pointer hover:pl-2 transition-all"
+                    onMouseEnter={() => {
+                      setActiveProject(proj);
+                      triggerScramble(`.project-name-${proj.number}`, proj.name);
+                      triggerScramble(`.project-detail-name`, proj.name);
+                      triggerScramble(`.project-detail-year`, proj.year.toString());
+                      triggerScramble(`.project-detail-type`, proj.type);
+                      triggerScramble(`.project-detail-tech`, proj.tech);
+                      triggerScramble(`.project-detail-desc`, proj.description);
+                      triggerScramble(`.project-detail-number`, `0${proj.number}`);
+                    }}
+                    onMouseLeave={() => {
+                      triggerScramble(`.project-name-${proj.number}`, proj.name);
+                    }}
+                  >
+                    <h4 className={`project-name-${proj.number} text-2xl font-bold uppercase tracking-tighter group-hover:text-white/70 transition-colors`}>{proj.name}</h4>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -868,14 +1023,13 @@ export default function Page() {
                 <span className="font-mono text-[10px] text-white/30 tracking-[0.4em] uppercase">Project</span>
                 <span className="font-mono text-[10px] text-white/30">—</span>
                 <span className="font-mono text-[10px] text-white/30">/</span>
-                <span className="font-mono text-[10px] text-white/50">04</span>
+                <span className="project-detail-number font-mono text-[10px] text-white/50">00</span>
               </div>
               <div className="flex-1 mx-6 h-px bg-white/10" />
               <div className="flex gap-1 shrink-0">
-                <div className="h-2.5 w-2.5 bg-white" />
-                <div className="h-2.5 w-2.5 bg-white" />
-                <div className="h-2.5 w-2.5 bg-white" />
-                <div className="h-2.5 w-2.5 bg-white" />
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <div key={num} className={`h-2.5 w-2.5 transition-colors duration-300 ${activeProject && activeProject.number >= num ? "bg-white" : "bg-white/20"}`} />
+                ))}
               </div>
             </div>
 
@@ -885,16 +1039,22 @@ export default function Page() {
 
 
                 {/* Preview Frame */}
-                <div className="relative" style={{ width: "380px", height: "280px" }}>
+                <div className="relative inline-block">
                   {/* Corner brackets */}
-                  <div className="absolute top-0 left-0 w-5 h-5 border-t border-l border-white/40" />
-                  <div className="absolute top-0 right-0 w-5 h-5 border-t border-r border-white/40" />
-                  <div className="absolute bottom-0 left-0 w-5 h-5 border-b border-l border-white/40" />
-                  <div className="absolute bottom-0 right-0 w-5 h-5 border-b border-r border-white/40" />
+                  <div className="absolute top-0 left-0 w-5 h-5 border-t border-l border-white/40 z-10" />
+                  <div className="absolute top-0 right-0 w-5 h-5 border-t border-r border-white/40 z-10" />
+                  <div className="absolute bottom-0 left-0 w-5 h-5 border-b border-l border-white/40 z-10" />
+                  <div className="absolute bottom-0 right-0 w-5 h-5 border-b border-r border-white/40 z-10" />
 
                   {/* Preview content */}
-                  <div className="w-full h-full bg-[#0d0d0d] flex items-center justify-center">
-                    <span className="font-mono text-[10px] text-white/15 tracking-[0.5em] uppercase">Preview</span>
+                  <div className="bg-[#0d0d0d] flex items-center justify-center p-2">
+                    {activeProject ? (
+                      <img src={activeProject.img} alt={activeProject.name} className="block object-contain max-h-[50vh] max-w-[40vw]" />
+                    ) : (
+                      <div className="w-[380px] h-[280px] flex items-center justify-center">
+                        <span className="font-mono text-[10px] text-white/15 tracking-[0.5em] uppercase">Preview</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -907,28 +1067,137 @@ export default function Page() {
               <div className="grid grid-cols-4 border-b border-white/10">
                 <div className="px-6 py-4 border-r border-white/10">
                   <p className="font-mono text-[8px] text-white/25 tracking-[0.4em] uppercase mb-2">Project</p>
-                  <p className="font-mono text-[11px] text-white/40">—</p>
+                  <p className="project-detail-name font-mono text-[11px] text-white/40">—</p>
                 </div>
                 <div className="px-6 py-4 border-r border-white/10">
                   <p className="font-mono text-[8px] text-white/25 tracking-[0.4em] uppercase mb-2">Year</p>
-                  <p className="font-mono text-[11px] text-white/40">—</p>
+                  <p className="project-detail-year font-mono text-[11px] text-white/40">—</p>
                 </div>
                 <div className="px-6 py-4 border-r border-white/10">
                   <p className="font-mono text-[8px] text-white/25 tracking-[0.4em] uppercase mb-2">Type</p>
-                  <p className="font-mono text-[11px] text-white/40">—</p>
+                  <p className="project-detail-type font-mono text-[11px] text-white/40">—</p>
                 </div>
                 <div className="px-6 py-4">
                   <p className="font-mono text-[8px] text-white/25 tracking-[0.4em] uppercase mb-2">Tech</p>
-                  <p className="font-mono text-[11px] text-white/40">—</p>
+                  <p className="project-detail-tech font-mono text-[11px] text-white/40">—</p>
                 </div>
               </div>
               {/* Description */}
               <div className="px-6 py-4">
                 <p className="font-mono text-[8px] text-white/25 tracking-[0.4em] uppercase mb-2">Description</p>
-                <p className="font-mono text-[11px] text-white/35">Hover a project to see preview and details.</p>
+                <p className="project-detail-desc font-mono text-[11px] text-white/35">Hover a project to see preview and details.</p>
               </div>
             </div>
 
+          </div>
+
+          <div className={`contactme-1 opacity-0 col-start-1 col-end-8 row-start-1 row-end-4 absolute inset-0 bg-black  z-50 flex flex-col justify-center pl-20 overflow-hidden ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <div className="absolute top-10 left-10 flex flex-col font-mono text-[10px] text-white/50 tracking-[0.2em] gap-1 z-10">
+              <p>LAST SYNCED: {lastSyncedTime || "00:00:00"}</p>
+              <div className="flex gap-2 text-white/40 mt-1">
+                <a href="https://www.linkedin.com/in/ahamsamartha" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">[LINKEDIN]</a>
+                <span>|</span>
+                <a href="https://github.com/iamkazbrekker" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">[GITHUB]</a>
+
+              </div>
+            </div>
+
+            <div className="flex flex-col z-10 relative mt-10">
+              <h2 className="contact-text-scramble-1 text-[120px] font-bold uppercase leading-[0.9] tracking-tighter"></h2>
+              <h2 className="contact-text-scramble-2 text-[120px] font-bold uppercase leading-[0.9] tracking-tighter"></h2>
+            </div>
+
+            <button
+              onClick={closeContact}
+              onMouseEnter={() => { scanXAnimationEnter() }}
+              onMouseLeave={() => { scanXAnimationLeave() }}
+              className="absolute top-8 right-8 p-2 z-10"
+            >
+              <svg
+                className="scan-close-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#b8b8b8"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 6V3a1 1 0 0 1 1-1h3" />
+                <path d="M18 2h3a1 1 0 0 1 1 1v3" />
+                <path d="M22 18v3a1 1 0 0 1-1 1h-3" />
+                <path d="M6 22H3a1 1 0 0 1-1-1v-3" />
+                <g className="scan-close-x">
+                  <path d="M15 9L9 15" />
+                  <path d="M9 9L15 15" />
+                </g>
+              </svg>
+            </button>
+
+            <div className="absolute right-[25%] top-[40%] text-white/20 z-0">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1">
+                <path d="M20 0v15M20 25v15M0 20h15M25 20h15" />
+                <circle cx="20" cy="20" r="4" />
+              </svg>
+            </div>
+          </div>
+
+          <div className={`contactme-2 opacity-0 col-start-1 col-end-8 row-start-4 row-end-6 absolute inset-0 bg-[#0d0d0d] border-t border-white/10 z-50 flex flex-col p-8 font-mono text-[11px] text-white/50 tracking-widest ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+            <div className="flex gap-12 mb-6">
+              <span className="text-white/30">[ TYPE OF WORK ]</span>
+              <button
+                className="hover:text-white transition-colors group flex items-center gap-2"
+                onClick={() => setWorkType("CONTRACT")}
+                onMouseEnter={() => triggerScramble(".type-contract-scramble", "CONTRACT")}
+              >
+                <span>[ <span className={workType === "CONTRACT" ? "text-[#5cffa3]" : "text-transparent"}>■</span> ]</span>
+                <span className="type-contract-scramble text-white group-hover:text-[#5cffa3]">CONTRACT</span>
+              </button>
+              <button
+                className="hover:text-white transition-colors group flex items-center gap-2"
+                onClick={() => setWorkType("FULL TIME")}
+                onMouseEnter={() => triggerScramble(".type-fulltime-scramble", "FULL TIME")}
+              >
+                <span>[ <span className={workType === "FULL TIME" ? "text-[#5cffa3]" : "text-transparent"}>■</span> ]</span>
+                <span className="type-fulltime-scramble text-white group-hover:text-[#5cffa3]">FULL TIME</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6 flex-1">
+              <div className="border border-white/10 focus-within:border-[#5cffa3] transition-colors flex">
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="> ENTER_EMAIL_ADDRESS..."
+                  className="w-full bg-transparent p-4 outline-none text-white placeholder-white/20"
+                />
+              </div>
+              <div className="border border-white/10 focus-within:border-[#5cffa3] transition-colors flex">
+                <input
+                  type="text"
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
+                  placeholder="> TYPE_YOUR_MESSAGE_HERE..."
+                  className="w-full bg-transparent p-4 outline-none text-white placeholder-white/20"
+                />
+              </div>
+              <div className="border border-white/10 flex flex-col">
+                <div className="p-4 flex-1 flex flex-col gap-2">
+                  <p>TYPE: <span className="text-white/30">{workType}</span></p>
+                  <p>STATUS: <span className="text-white/30">{contactStatus}</span></p>
+                </div>
+                <button
+                  className="border-t border-white/10 p-4 text-center hover:bg-[#5cffa3] hover:text-white transition-colors w-full uppercase"
+                  onMouseEnter={() => triggerScramble(".transmit-scramble", "TRANSMIT")}
+                  onClick={submitContactForm}
+                >
+                  <span className="transmit-scramble">TRANSMIT</span>
+                </button>
+              </div>
+            </div>
           </div>
 
 
