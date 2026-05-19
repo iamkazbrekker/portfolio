@@ -3,8 +3,8 @@ import { supplyMono, supplySans } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "My professional portfolio",
+  title: "Samarth Kapse",
+  description: "Portfolio or smth, idk",
 };
 
 export default function RootLayout({

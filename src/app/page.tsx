@@ -58,6 +58,7 @@ export default function Page() {
   const audioLoopRef = useRef<HTMLAudioElement>(null);
   const cathodeRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const menuCounter = useRef({ value: 0 });
 
   // Smooth Progress Logic
   useEffect(() => {
@@ -182,14 +183,141 @@ export default function Page() {
     });
   };
 
-  const openMenu = () => {
+  const handleMenuEnter = () => {
     if (menuOpen) return;
 
-    let t1 = gsap.timeline({
+    gsap.to(".top-overlay", {
+      x: "0%",
+      opacity: 1,
+      duration: 1,
+      ease: "power2.inOut",
+      overwrite: "auto",
       onComplete: () => {
-        setMenuOpen(true);
+        openMenu();
       }
     });
+
+    gsap.to(".lower-loading-bar", {
+      width: "100%",
+      opacity: 1,
+      backgroundColor: "#ffffff",
+      duration: 1,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+
+    gsap.to(".side-loading-bar span", {
+      color: "rgba(255,255,255,1)",
+      duration: 1,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+
+    const el = document.querySelector(".hover-percentage");
+    gsap.to(menuCounter.current, {
+      value: 100,
+      duration: 1,
+      ease: "power2.inOut",
+      overwrite: "auto",
+      onUpdate: () => {
+        if (el) el.textContent = `[${Math.floor(menuCounter.current.value).toString().padStart(3, "0")}]`;
+      }
+    });
+  };
+
+  const handleMenuLeave = () => {
+    if (menuOpen) return;
+
+    gsap.to(".top-overlay", {
+      x: "-100%",
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+
+    gsap.to(".lower-loading-bar", {
+      width: "0%",
+      opacity: 0,
+      duration: 0.4,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+
+    gsap.to(".side-loading-bar span", {
+      color: "rgba(255,255,255,0.1)",
+      duration: 0.4,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+
+    const el = document.querySelector(".hover-percentage");
+    gsap.to(menuCounter.current, {
+      value: 0,
+      duration: 0.4,
+      ease: "power2.inOut",
+      overwrite: "auto",
+      onUpdate: () => {
+        if (el) el.textContent = `[${Math.floor(menuCounter.current.value).toString().padStart(3, "0")}]`;
+      }
+    });
+  };
+
+  const handleWorkEnter = () => {
+    if (workOpen) return;
+    triggerScramble(".work-trigger-text", "WORK");
+    gsap.to(".work-div", {
+      scaleY: "100%",
+      duration: 1,
+      ease: "power2.inOut",
+      overwrite: "auto",
+      onComplete: () => {
+        openWork();
+      }
+    });
+  };
+
+  const handleWorkLeave = () => {
+    if (workOpen) return;
+    triggerScramble(".work-trigger-text", "WORK");
+    gsap.to(".work-div", {
+      scaleY: "0%",
+      duration: 0.4,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+  };
+
+  const handleContactEnter = () => {
+    if (contactOpen) return;
+    triggerScramble(".contact-trigger-text", "CONTACT");
+    gsap.to(".contact-div", {
+      scaleY: "100%",
+      duration: 1,
+      ease: "power2.inOut",
+      overwrite: "auto",
+      onComplete: () => {
+        openContact();
+      }
+    });
+  };
+
+  const handleContactLeave = () => {
+    if (contactOpen) return;
+    triggerScramble(".contact-trigger-text", "CONTACT");
+    gsap.to(".contact-div", {
+      scaleY: "0%",
+      duration: 0.4,
+      ease: "power2.inOut",
+      overwrite: "auto"
+    });
+  };
+
+  const openMenu = () => {
+    if (menuOpen) return;
+    setMenuOpen(true);
+
+    let t1 = gsap.timeline();
     t1.fromTo(".top-bottom", {
       opacity: 1
     }, {
@@ -225,19 +353,6 @@ export default function Page() {
       duration: 0.5,
       ease: "power2.out"
     })
-    gsap.fromTo(
-      ".top-overlay",
-      {
-        x: "-100%",
-        opacity: 0,
-      },
-      {
-        x: "0%",
-        opacity: 1,
-        duration: 1.5,
-        ease: "power3.out",
-      }
-    );
     gsap.to("#menu-icon-path", {
       duration: 1.5,
       morphSVG: "#cross-icon-path"
@@ -249,45 +364,11 @@ export default function Page() {
         chars: "5?QA.?!@#*()_+=-{}[]|\\;:/?.><,1234567890",
       }
     })
-    gsap.fromTo(
-      ".lower-loading-bar",
-      {
-        width: "0%",
-        opacity: 0
-      },
-      {
-        duration: 1.5,
-        width: "100%",
-        opacity: 1,
-        backgroundColor: "#ffffff",
-        ease: "power3.out",
-      }
-    );
-    gsap.to(".side-loading-bar span", {
-      color: "rgba(255,255,255,1)",
-      duration: 0.1,
-      stagger: 0.1,
-      ease: "power2.out",
-    });
-    const counter = { value: 0 };
-
-    gsap.to(counter, {
-      value: 100,
-      duration: 1,
-      ease: "power1.out",
-      onUpdate: () => {
-        const el = document.querySelector(".hover-percentage");
-        if (el) {
-          el.textContent = `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
-        }
-      }
-    });
-
   };
 
   const closeMenu = () => {
     if (!menuOpen) return;
-    const counter = { value: 100 };
+
     let t2 = gsap.timeline({
       onComplete: () => {
         setMenuOpen(false)
@@ -349,14 +430,14 @@ export default function Page() {
         },
         ease: "power2.out",
       }, "<")
-      .to(counter, {
+      .to(menuCounter.current, {
         value: 0,
         duration: 1,
         ease: "power1.out",
         onUpdate: () => {
           const el = document.querySelector(".hover-percentage");
           if (el) {
-            el.textContent = `[${Math.floor(counter.value).toString().padStart(3, "0")}]`;
+            el.textContent = `[${Math.floor(menuCounter.current.value).toString().padStart(3, "0")}]`;
           }
         }
       }, "<");
@@ -368,21 +449,16 @@ export default function Page() {
 
     let tw1 = gsap.timeline();
 
-    tw1.to(".work-div", {
-      scaleY: "100%",
-      duration: 1.2,
-      ease: "power2.out",
+    tw1.fromTo(".work-showcase-1", {
+      scaleX: "0%",
+      opacity: 0,
+      transformOrigin: "left center"
+    }, {
+      opacity: 1,
+      scaleX: "100%",
+      duration: 1,
+      ease: "power4.out",
     })
-      .fromTo(".work-showcase-1", {
-        scaleX: "0%",
-        opacity: 0,
-        transformOrigin: "left center"
-      }, {
-        opacity: 1,
-        scaleX: "100%",
-        duration: 1,
-        ease: "power4.out",
-      })
       .fromTo(".work-showcase-2", {
         scaleX: "0%",
         opacity: 0,
@@ -440,9 +516,9 @@ export default function Page() {
       setContactStatus("ERROR: MISSING_INPUT");
       return;
     }
-    
+
     setContactStatus("TRANSMITTING...");
-    
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -453,7 +529,7 @@ export default function Page() {
           type: workType
         })
       });
-      
+
       if (res.ok) {
         setContactStatus("TRANSMITTED_SUCCESSFULLY");
         setContactEmail("");
@@ -474,22 +550,17 @@ export default function Page() {
 
     let tw1 = gsap.timeline();
 
-    tw1.to(".contact-div", {
-      scaleY: "100%",
-      duration: 1.2,
+    tw1.fromTo(".contactme-1", {
+      opacity: 0,
+    }, {
+      opacity: 1,
+      duration: 1,
       ease: "power2.out",
+      onComplete: () => {
+        triggerScramble(".contact-text-scramble-1", "LET'S COOK");
+        triggerScramble(".contact-text-scramble-2", "SOMETHING");
+      }
     })
-      .fromTo(".contactme-1", {
-        opacity: 0,
-      }, {
-        opacity: 1,
-        duration: 1,
-        ease: "power2.out",
-        onComplete: () => {
-          triggerScramble(".contact-text-scramble-1", "LET'S COOK");
-          triggerScramble(".contact-text-scramble-2", "SOMETHING");
-        }
-      })
       .fromTo(".contactme-2", {
         y: "100%",
         opacity: 0,
@@ -681,10 +752,9 @@ export default function Page() {
               return (
                 <div
                   key={i}
-                  className={`${cellClass} border border-white/25 col-span-2 relative items-start justify-start pointer-events-auto overflow-hidden`}
-                  onMouseEnter={() => {
-                    if (cellData) openMenu();
-                  }}>
+                  className={`${cellClass} border border-white/25 col-span-2 relative items-start justify-start pointer-events-auto overflow-hidden cursor-pointer`}
+                  onMouseEnter={handleMenuEnter}
+                  onMouseLeave={handleMenuLeave}>
 
                   <div style={{ zIndex: 20 }} className="w-full h-full p-8 pr-32 absolute top-0 left-0 flex flex-col justify-between pointer-events-none">
                     <div className="flex justify-between items-center text-[9px] opacity-40 font-mono tracking-[0.5em]">
@@ -710,7 +780,7 @@ export default function Page() {
                   </div>
 
 
-                  <div style={{ zIndex: 10 }} className="top-overlay absolute inset-0 opacity-0 bg-white/40 pointer-events-none"></div>
+                  <div style={{ zIndex: 10, transform: "translateX(-100%)" }} className="top-overlay absolute inset-0 opacity-0 bg-white/40 pointer-events-none"></div>
                   <div style={{ zIndex: 0 }} className="top-bottom absolute inset-0 pointer-events-none"></div>
 
                   <div style={{ zIndex: 30 }} className="absolute right-0 top-0 h-full w-28 border-l border-white/25 flex items-center justify-center pointer-events-auto">
@@ -760,10 +830,8 @@ export default function Page() {
                 <div
                   key={i}
                   className={`work-trigger-cell ${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest pointer-events-auto cursor-pointer relative overflow-hidden`}
-                  onMouseEnter={() => {
-                    openWork()
-                    triggerScramble(".work-trigger-text", "WORK")
-                  }}
+                  onMouseEnter={handleWorkEnter}
+                  onMouseLeave={handleWorkLeave}
                 >
                   <div className="work-div absolute inset-0 bg-white scale-y-0 origin-bottom pointer-events-none" />
                   <span className="work-trigger-text relative z-10 mix-blend-difference">Work</span>
@@ -777,10 +845,8 @@ export default function Page() {
                 <div
                   key={i}
                   className={`contact-trigger-cell ${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest pointer-events-auto cursor-pointer relative overflow-hidden`}
-                  onMouseEnter={() => {
-                    openContact()
-                    triggerScramble(".contact-trigger-text", "CONTACT")
-                  }}
+                  onMouseEnter={handleContactEnter}
+                  onMouseLeave={handleContactLeave}
                 >
                   <div className="contact-div absolute inset-0 bg-white scale-y-0 origin-bottom pointer-events-none" />
                   <span className="contact-trigger-text relative z-10 mix-blend-difference">Contact</span>
@@ -1021,11 +1087,16 @@ export default function Page() {
             <div className="absolute top-20 left-0 right-0 flex items-center px-8 py-5 z-10">
               <div className="flex items-center gap-3 shrink-0">
                 <span className="font-mono text-[10px] text-white/30 tracking-[0.4em] uppercase">Project</span>
-                <span className="font-mono text-[10px] text-white/30">—</span>
-                <span className="font-mono text-[10px] text-white/30">/</span>
-                <span className="project-detail-number font-mono text-[10px] text-white/50">00</span>
+                <span className="project-detail-number font-mono text-[10px] text-white/50">—</span>
+                <span className="font-mono text-[10px] text-white/50">/</span>
+                <span className="font-mono text-[10px] text-white/50">05</span>
               </div>
-              <div className="flex-1 mx-6 h-px bg-white/10" />
+              <div className="flex-1 mx-6 h-px bg-white/10 relative overflow-hidden">
+                <div 
+                  className="absolute top-0 left-0 h-full bg-white transition-all duration-300 ease-out" 
+                  style={{ width: `${activeProject ? (activeProject.number / projects.length) * 100 : 0}%` }}
+                />
+              </div>
               <div className="flex gap-1 shrink-0">
                 {[1, 2, 3, 4, 5].map((num) => (
                   <div key={num} className={`h-2.5 w-2.5 transition-colors duration-300 ${activeProject && activeProject.number >= num ? "bg-white" : "bg-white/20"}`} />
