@@ -1207,12 +1207,7 @@ export default function Page() {
               </svg>
             </button>
 
-            <div className="absolute right-[25%] top-[40%] text-white/20 z-0">
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1">
-                <path d="M20 0v15M20 25v15M0 20h15M25 20h15" />
-                <circle cx="20" cy="20" r="4" />
-              </svg>
-            </div>
+            
           </div>
 
           <div className={`contactme-2 opacity-0 col-start-1 col-end-8 row-start-4 row-end-6 absolute inset-0 bg-[#0d0d0d] border-t border-white/10 z-50 flex flex-col p-8 font-mono text-[11px] text-white/50 tracking-widest ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
