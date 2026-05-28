@@ -13,10 +13,13 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrambleTextPlugin);
 }
 
-const ASSETS = [
+const CRITICAL_ASSETS = [
   { key: "first_video", url: "/first.mp4" },
-  { key: "loop_video", url: "/gif.mp4" },
   { key: "first_audio", url: "/first audio.m4a" },
+];
+
+const DEFERRED_ASSETS = [
+  { key: "loop_video", url: "/gif.mp4" },
   { key: "loop_audio", url: "/2 audio.m4a" },
 ];
 
@@ -72,10 +75,10 @@ export default function Page() {
 
   // Asset Loading Logic
   useEffect(() => {
-    let loadedCount = 0;
+    let criticalLoadedCount = 0;
     const results: Record<string, string> = {};
 
-    const loadAsset = async (key: string, url: string) => {
+    const loadCritical = async (key: string, url: string) => {
       try {
         const response = await fetch(encodeURI(url));
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -84,22 +87,43 @@ export default function Page() {
         const blobUrl = URL.createObjectURL(blob);
         results[key] = blobUrl;
 
-        loadedCount++;
-        const targetProgress = Math.round((loadedCount / ASSETS.length) * 100);
+        criticalLoadedCount++;
+        const targetProgress = Math.round((criticalLoadedCount / CRITICAL_ASSETS.length) * 100);
         setProgress(targetProgress);
 
-        if (loadedCount === ASSETS.length) {
-          setAssetUrls(results);
+        if (criticalLoadedCount === CRITICAL_ASSETS.length) {
+          setAssetUrls(prev => ({ ...prev, ...results }));
           setIsAssetsLoaded(true);
+          loadDeferred();
         }
       } catch (error) {
-        console.error(`Failed to load ${url}:`, error);
-        loadedCount++;
-        if (loadedCount === ASSETS.length) setIsAssetsLoaded(true);
+        console.error(`Failed to load critical ${url}:`, error);
+        criticalLoadedCount++;
+        const targetProgress = Math.round((criticalLoadedCount / CRITICAL_ASSETS.length) * 100);
+        setProgress(targetProgress);
+        if (criticalLoadedCount === CRITICAL_ASSETS.length) {
+          setIsAssetsLoaded(true);
+          loadDeferred();
+        }
       }
     };
 
-    ASSETS.forEach((asset) => loadAsset(asset.key, asset.url));
+    const loadDeferred = () => {
+      DEFERRED_ASSETS.forEach(async (asset) => {
+        try {
+          const response = await fetch(encodeURI(asset.url));
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          setAssetUrls(prev => ({ ...prev, [asset.key]: blobUrl }));
+        } catch (error) {
+          console.error(`Failed to load deferred ${asset.url}:`, error);
+        }
+      });
+    };
+
+    CRITICAL_ASSETS.forEach((asset) => loadCritical(asset.key, asset.url));
 
     return () => {
       Object.values(results).forEach(url => URL.revokeObjectURL(url));
@@ -708,7 +732,7 @@ export default function Page() {
           <>
             <video
               ref={videoRef}
-              src={assetUrls.first_video}
+              src={assetUrls.first_video || "/first.mp4"}
               className={`video-background transition-opacity duration-2000 ${hasInteracted && !isIntroEnded ? "opacity-100" : "opacity-0"}`}
               onEnded={handleIntroEnd}
               playsInline
@@ -717,7 +741,7 @@ export default function Page() {
               preload="auto"
             />
             <video
-              src={assetUrls.loop_video}
+              src={assetUrls.loop_video || "/gif.mp4"}
               className={`video-background absolute inset-0 transition-opacity duration-2000 ${isIntroEnded ? "opacity-100" : "opacity-0"}`}
               autoPlay
               loop
@@ -732,8 +756,8 @@ export default function Page() {
       {/* Audio elements */}
       {hasInteracted && (
         <>
-          <audio ref={audioIntroRef} src={assetUrls.first_audio} preload="auto" />
-          <audio ref={audioLoopRef} src={assetUrls.loop_audio} loop preload="auto" />
+          <audio ref={audioIntroRef} src={assetUrls.first_audio || "/first audio.m4a"} preload="auto" />
+          <audio ref={audioLoopRef} src={assetUrls.loop_audio || "/2 audio.m4a"} loop preload="auto" />
         </>
       )}
 
