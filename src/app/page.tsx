@@ -7,14 +7,18 @@ import gsap from "gsap";
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import Link from "next/link";
-import Image from "next/image";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(MorphSVGPlugin);
   gsap.registerPlugin(ScrambleTextPlugin);
 }
 
-
+const ASSETS = [
+  { key: "first_video", url: "/first.mp4" },
+  { key: "loop_video", url: "/gif.mp4" },
+  { key: "first_audio", url: "/first audio.m4a" },
+  { key: "loop_audio", url: "/2 audio.m4a" },
+];
 
 const cells = [
   { key: 0, string: "Samarth Kapse" },
@@ -22,11 +26,11 @@ const cells = [
 ]
 
 const projects = [
-  { number: 1, name: "Weave", year: 2026, tech: "NextJS, MongoDB, Flutter", type: "Hybrid(App / Website)", description: "A full-stack, multi-platform system built for NGOs and social organizations to manage volunteer deployment, collect field data, track community impact, and respond to emerging crises, all orchestrated by a suite of AI agents.", link: "https://weave-seven-flax.vercel.app/", img: "/projects/weave.png" },
-  { number: 2, name: "Tsukumo", year: 2026, tech: "NextJS, MongoDB, Flask", type: "Web Application", description: "A full-stack autonomous health intelligence platform built to demonstrate the convergence of IoT telemetry, multi-organ ML prediction, agentic AI reasoning, and real-time clinical dispatch.", link: "https://github.com/iamkazbrekker/tsukumo", img: "/projects/tsukumo.png" },
-  { number: 3, name: "DPHRS", year: 2026, tech: "Solidity, NextJS, Hardhat", type: "Web Application", description: "A secure, blockchain-based web application designed to give patients complete ownership and control over their medical data.", link: "https://github.com/iamkazbrekker/dphrs", img: "/projects/dphrs.png" },
-  { number: 4, name: "CitySync", year: 2026, tech: "NextJS, Supabase DB, Baileys", type: "Web Application", description: "A full-stack, AI-augmented civic platform built specifically for Nagpur, India, enabling citizens to report municipal issues (roads, water, electricity) and track their resolution in real time.", link: "https://city-sync-ivory.vercel.app/", img: "/projects/citySync.png" },
-  { number: 5, name: "IRC", year: 2026, tech: "NextJS, WebSockets, MongoDB", type: "Web Application", description: "A modern, real-time chat application built with Next.js, WebSockets, and MongoDB.", link: "https://github.com/iamkazbrekker/irc", img: "/projects/irc.png" }
+  { number: 1, name: "Weave", year: 2026, tech: "NextJS, MongoDB, Flutter", type: "Hybrid(App / Website)", description: "A full-stack, multi-platform system built for NGOs and social organizations to manage volunteer deployment, collect field data, track community impact, and respond to emerging crises, all orchestrated by a suite of AI agents.", link: "https://weave-seven-flax.vercel.app/", img: "/projects/weave.webp" },
+  { number: 2, name: "Tsukumo", year: 2026, tech: "NextJS, MongoDB, Flask", type: "Web Application", description: "A full-stack autonomous health intelligence platform built to demonstrate the convergence of IoT telemetry, multi-organ ML prediction, agentic AI reasoning, and real-time clinical dispatch.", link: "https://github.com/iamkazbrekker/tsukumo", img: "/projects/tsukumo.webp" },
+  { number: 3, name: "DPHRS", year: 2026, tech: "Solidity, NextJS, Hardhat", type: "Web Application", description: "A secure, blockchain-based web application designed to give patients complete ownership and control over their medical data.", link: "https://github.com/iamkazbrekker/dphrs", img: "/projects/dphrs.webp" },
+  { number: 4, name: "CitySync", year: 2026, tech: "NextJS, Supabase DB, Baileys", type: "Web Application", description: "A full-stack, AI-augmented civic platform built specifically for Nagpur, India, enabling citizens to report municipal issues (roads, water, electricity) and track their resolution in real time.", link: "https://city-sync-ivory.vercel.app/", img: "/projects/citySync.webp" },
+  { number: 5, name: "IRC", year: 2026, tech: "NextJS, WebSockets, MongoDB", type: "Web Application", description: "A modern, real-time chat application built with Next.js, WebSockets, and MongoDB.", link: "https://github.com/iamkazbrekker/irc", img: "/projects/irc.webp" }
 ]
 
 export default function Page() {
@@ -36,7 +40,7 @@ export default function Page() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isIntroEnded, setIsIntroEnded] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-
+  const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
   const [menuOpen, setMenuOpen] = useState(false);
   const [workOpen, setWorkOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
@@ -50,7 +54,6 @@ export default function Page() {
 
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const loopVideoRef = useRef<HTMLVideoElement>(null);
   const audioIntroRef = useRef<HTMLAudioElement>(null);
   const audioLoopRef = useRef<HTMLAudioElement>(null);
   const cathodeRef = useRef<HTMLDivElement>(null);
@@ -67,47 +70,39 @@ export default function Page() {
     }
   }, [displayProgress, progress]);
 
-  // Asset Loading — only gate on intro video via native browser streaming
+  // Asset Loading Logic
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    let loadedCount = 0;
+    const results: Record<string, string> = {};
 
-    // Already cached from a previous visit
-    if (video.readyState >= 4) {
-      setProgress(100);
-      setIsAssetsLoaded(true);
-      return;
-    }
+    const loadAsset = async (key: string, url: string) => {
+      try {
+        const response = await fetch(encodeURI(url));
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-    const handleProgress = () => {
-      if (video.buffered.length > 0 && video.duration > 0) {
-        const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-        const percent = Math.round((bufferedEnd / video.duration) * 100);
-        setProgress(Math.min(percent, 100));
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        results[key] = blobUrl;
+
+        loadedCount++;
+        const targetProgress = Math.round((loadedCount / ASSETS.length) * 100);
+        setProgress(targetProgress);
+
+        if (loadedCount === ASSETS.length) {
+          setAssetUrls(results);
+          setIsAssetsLoaded(true);
+        }
+      } catch (error) {
+        console.error(`Failed to load ${url}:`, error);
+        loadedCount++;
+        if (loadedCount === ASSETS.length) setIsAssetsLoaded(true);
       }
     };
 
-    const handleCanPlayThrough = () => {
-      setProgress(100);
-      setIsAssetsLoaded(true);
-    };
-
-    const handleError = () => {
-      console.error("Failed to preload intro video");
-      setProgress(100);
-      setIsAssetsLoaded(true);
-    };
-
-    video.addEventListener("progress", handleProgress);
-    video.addEventListener("canplaythrough", handleCanPlayThrough);
-    video.addEventListener("loadedmetadata", handleProgress);
-    video.addEventListener("error", handleError);
+    ASSETS.forEach((asset) => loadAsset(asset.key, asset.url));
 
     return () => {
-      video.removeEventListener("progress", handleProgress);
-      video.removeEventListener("canplaythrough", handleCanPlayThrough);
-      video.removeEventListener("loadedmetadata", handleProgress);
-      video.removeEventListener("error", handleError);
+      Object.values(results).forEach(url => URL.revokeObjectURL(url));
     };
   }, []);
 
@@ -123,7 +118,6 @@ export default function Page() {
   const handleIntroEnd = () => {
     setIsIntroEnded(true);
     setTimeout(() => {
-      if (loopVideoRef.current) loopVideoRef.current.play().catch(console.error);
       if (audioLoopRef.current) audioLoopRef.current.play().catch(console.error);
     }, 50);
   };
@@ -710,35 +704,36 @@ export default function Page() {
 
       {/* Background Media */}
       <div className="video-container">
-        {/* Intro video — always rendered so the browser can stream-preload it */}
-        <video
-          ref={videoRef}
-          src="/first.mp4"
-          className={`video-background transition-opacity duration-2000 ${hasInteracted && !isIntroEnded ? "opacity-100" : "opacity-0"}`}
-          onEnded={handleIntroEnd}
-          playsInline
-          muted
-          preload="auto"
-        />
-        {/* Loop video — only mounts after interaction, buffers while intro plays */}
         {hasInteracted && (
-          <video
-            ref={loopVideoRef}
-            src="/gif.mp4"
-            className={`video-background absolute inset-0 transition-opacity duration-2000 ${isIntroEnded ? "opacity-100" : "opacity-0"}`}
-            loop
-            playsInline
-            muted
-            preload="auto"
-          />
+          <>
+            <video
+              ref={videoRef}
+              src={assetUrls.first_video}
+              className={`video-background transition-opacity duration-2000 ${hasInteracted && !isIntroEnded ? "opacity-100" : "opacity-0"}`}
+              onEnded={handleIntroEnd}
+              playsInline
+              muted
+              autoPlay
+              preload="auto"
+            />
+            <video
+              src={assetUrls.loop_video}
+              className={`video-background absolute inset-0 transition-opacity duration-2000 ${isIntroEnded ? "opacity-100" : "opacity-0"}`}
+              autoPlay
+              loop
+              playsInline
+              muted
+              preload="auto"
+            />
+          </>
         )}
       </div>
 
-      {/* Audio — only loaded after user interaction */}
+      {/* Audio elements */}
       {hasInteracted && (
         <>
-          <audio ref={audioIntroRef} src="/first%20audio.m4a" preload="auto" />
-          <audio ref={audioLoopRef} src="/2%20audio.m4a" loop preload="auto" />
+          <audio ref={audioIntroRef} src={assetUrls.first_audio} preload="auto" />
+          <audio ref={audioLoopRef} src={assetUrls.loop_audio} loop preload="auto" />
         </>
       )}
 
@@ -883,7 +878,7 @@ export default function Page() {
                   <div className="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-black" />
                   <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-black" />
                   <div className="w-full h-full flex items-center justify-center relative">
-                    <Image src="/Samarth pfp.jpeg" alt="Samarth Kapse" width={320} height={180} className="menu-image w-80 h-45 object-cover" />
+                    <img src="./Samarth pfp.jpeg" className="menu-image w-80 h-45 object-cover" />
                   </div>
                 </div>
                 <div className="relative p-1">
@@ -1125,7 +1120,7 @@ export default function Page() {
                   {/* Preview content */}
                   <div className="bg-[#0d0d0d] flex items-center justify-center p-2">
                     {activeProject ? (
-                      <Image src={activeProject.img} alt={activeProject.name} width={800} height={600} className="block object-contain max-h-[50vh] max-w-[40vw]" sizes="40vw" />
+                      <img src={activeProject.img} alt={activeProject.name} className="block object-contain max-h-[50vh] max-w-[40vw]" />
                     ) : (
                       <div className="w-[380px] h-[280px] flex items-center justify-center">
                         <span className="font-mono text-[10px] text-white/15 tracking-[0.5em] uppercase">Preview</span>
