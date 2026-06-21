@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-supply-sans);
   --font-mono: var(--font-supply-mono);
+  --spacing-45: 11.25rem;
 }
 
 @media (prefers-color-scheme: dark) {

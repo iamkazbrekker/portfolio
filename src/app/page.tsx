@@ -55,6 +55,51 @@ export default function Page() {
   const [contactMessage, setContactMessage] = useState("");
   const [contactStatus, setContactStatus] = useState("AWAITING_INPUT");
 
+  const [gridConfig, setGridConfig] = useState({ cols: 7, rows: 5 });
+
+  const getSpecialIndices = (cols: number, rows: number) => {
+    if (cols === 3) {
+      return {
+        menu: 0,
+        work: 2,
+        mute: 3,
+        contact: 21
+      };
+    }
+    if (cols === 5) {
+      return {
+        menu: 0,
+        work: 3,
+        mute: 4,
+        contact: 25
+      };
+    }
+    return {
+      menu: 0,
+      work: 5,
+      mute: 6,
+      contact: 28
+    };
+  };
+
+  const specials = getSpecialIndices(gridConfig.cols, gridConfig.rows);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      if (w < 768) {
+        setGridConfig({ cols: 3, rows: 8 });
+      } else if (w < 1200) {
+        setGridConfig({ cols: 5, rows: 6 });
+      } else {
+        setGridConfig({ cols: 7, rows: 5 });
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioIntroRef = useRef<HTMLAudioElement>(null);
@@ -763,16 +808,20 @@ export default function Page() {
 
       {/* UX Content */}
       <div className={`cursor-custom ux-content h-full w-full items-start justify-start pt-40 pointer-events-none ${isIntroEnded ? "visible" : ""}`}>
-        <div className="absolute inset-0 grid grid-cols-7 grid-rows-5">
-          {Array.from({ length: 35 }).map((_, i) => {
+        <div
+          className="absolute inset-0 grid"
+          style={{
+            gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${gridConfig.rows}, minmax(0, 1fr))`
+          }}
+        >
+          {Array.from({ length: gridConfig.cols * gridConfig.rows }).map((_, i) => {
             if (i === 1) return null;
 
-            const isMergedCell = i === 0;
-
-            const cellData = cells.find(c => c.key === i);
+            const isMergedCell = i === specials.menu;
             const cellClass = `cell-${i}`;
 
-            if (i === 0) {
+            if (i === specials.menu) {
               return (
                 <div
                   key={i}
@@ -780,23 +829,23 @@ export default function Page() {
                   onMouseEnter={handleMenuEnter}
                   onMouseLeave={handleMenuLeave}>
 
-                  <div style={{ zIndex: 20 }} className="w-full h-full p-8 pr-32 absolute top-0 left-0 flex flex-col justify-between pointer-events-none">
-                    <div className="flex justify-between items-center text-[9px] opacity-40 font-mono tracking-[0.5em]">
+                  <div style={{ zIndex: 20 }} className="w-full h-full p-3 sm:p-5 md:p-6 lg:p-8 pr-14 sm:pr-24 md:pr-28 lg:pr-32 absolute top-0 left-0 flex flex-col justify-between pointer-events-none">
+                    <div className="flex justify-between items-center text-[7px] sm:text-[8px] md:text-[9px] opacity-40 font-mono tracking-[0.5em]">
                       <span className="hover-text">HOVER TO EXPLORE</span>
                       <span className="hover-percentage">[000]</span>
                     </div>
 
-                    <div className="w-full pb-4">
-                      <h2 className={`font-sans ${cellClass}-name text-2xl font-bold tracking-[0.15em] uppercase leading-[0.8] mt-8`}>
-                        {cellData ? cellData.string : "Samarth"}
+                    <div className="w-full pb-1 sm:pb-2 lg:pb-4">
+                      <h2 className={`font-sans ${cellClass}-name text-3xl sm:text-xl md:text-xl lg:text-2xl font-bold tracking-[0.15em] uppercase leading-[0.8] mt-2 sm:mt-4 md:mt-6 lg:mt-8 whitespace-nowrap`}>
+                        Samarth Kapse
                       </h2>
 
 
-                      <div className="w-full flex items-center gap-6 pointer-events-auto h-4">
+                      <div className="w-full flex items-center gap-2 sm:gap-4 lg:gap-6 pointer-events-auto h-4">
                         <div className="h-0.5 bg-white/10 grow relative overflow-hidden">
                           <div className="lower-loading-bar absolute left-0 top-0 h-full bg-white opacity-0 w-0" />
                         </div>
-                        <div className="side-loading-bar flex items-center gap-[0.35em] text-[18px] font-bold text-white/10 leading-none">
+                        <div className="side-loading-bar flex items-center gap-[0.35em] text-[10px] sm:text-[14px] md:text-[16px] lg:text-[18px] font-bold text-white/10 leading-none">
                           <span>.</span><span>.</span><span>.</span><span>.</span><span>.</span>
                         </div>
                       </div>
@@ -807,7 +856,7 @@ export default function Page() {
                   <div style={{ zIndex: 10, transform: "translateX(-100%)" }} className="top-overlay absolute inset-0 opacity-0 bg-white/40 pointer-events-none"></div>
                   <div style={{ zIndex: 0 }} className="top-bottom absolute inset-0 pointer-events-none"></div>
 
-                  <div style={{ zIndex: 30 }} className="absolute right-0 top-0 h-full w-28 border-l border-white/25 flex items-center justify-center pointer-events-auto">
+                  <div style={{ zIndex: 30 }} className="absolute right-0 top-0 h-full w-12 sm:w-20 md:w-24 lg:w-28 border-l border-white/25 flex items-center justify-center pointer-events-auto">
                     <button onClick={closeMenu}>
                       <svg
                         width="24"
@@ -829,7 +878,7 @@ export default function Page() {
               );
             }
 
-            if (i == 6) {
+            if (i === specials.mute) {
               return (
                 hasInteracted && (
                   <div
@@ -849,7 +898,7 @@ export default function Page() {
               )
             }
 
-            if (i == 5) {
+            if (i === specials.work) {
               return (
                 <div
                   key={i}
@@ -864,7 +913,7 @@ export default function Page() {
             }
 
 
-            if (i == 28) {
+            if (i === specials.contact) {
               return (
                 <div
                   key={i}
@@ -881,19 +930,19 @@ export default function Page() {
             return (
               <div
                 key={i}
-                className={`${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest ${isMergedCell ? "col-span-2" : ""} pointer-events-auto`}
-                onMouseOver={() => {
-                  if (cellData) triggerScramble(`.${cellClass}`, cellData.string);
-                }}
-                onMouseLeave={() => {
-                  if (cellData) triggerScramble(`.${cellClass}`, cellData.string);
-                }}
+                className={`${cellClass} border border-white/25 flex items-center justify-center text-[15px] uppercase tracking-widest pointer-events-auto`}
               >
-                {cellData ? cellData.string : ""}
+                {""}
               </div>
             );
           })}
-          <div className={`menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 row-start-2 row-end-6 bg-white border text-black z-30 overflow-y-auto scrollbar-hide ${menuOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+          <div
+            className={`menu-div opacity-0 absolute inset-0 col-start-1 col-end-3 bg-white border text-black z-30 overflow-y-auto scrollbar-hide ${menuOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{
+              gridRowStart: 2,
+              gridRowEnd: gridConfig.rows + 1
+            }}
+          >
             <div className=" w-full">
               <div className="flex flex-row justify-between pl-6 pr-2 pt-5">
                 <div className="img-div relative p-1">
@@ -984,12 +1033,15 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            <div className="py-3 pt-32 relative z-30 w-full bg-black text-white">
-              <div className="flex flex-row justify-between">
-                <div className="pb-32 font-mono font-bold text-3xl text-center uppercase flex justify-center w-full px-10 border-b border-white">
+
+
+            <div className="sticky top-45 z-30 w-full bg-black text-white flex flex-col min-h-[calc(80vh-11.25rem)]">
+              <div className="flex flex-row justify-center flex-1">
+                <div className="font-mono font-bold text-3xl text-center uppercase flex flex-col justify-center items-center h-full w-full px-10 py-12 border-b border-white flex-1">
                   <h1>Building anything and everything that fancies me</h1>
                 </div>
               </div>
+
               <div className="py-8 px-4 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <div className="h-4.5 w-4.5 bg-white" />
@@ -1034,7 +1086,13 @@ export default function Page() {
             </button>
           </div> */}
 
-          <div className={`work-showcase work-showcase-1 absolute inset-0 col-start-1 col-end-3 row-start-1 row-end-6 bg-[#010101] opacity-0 text-white border border-white/10 z-50 flex flex-col justify-center p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+          <div
+            className={`work-showcase work-showcase-1 absolute inset-0 col-start-1 col-end-3 bg-[#010101] opacity-0 text-white border border-white/10 z-50 flex flex-col justify-center p-10 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{
+              gridRowStart: 1,
+              gridRowEnd: gridConfig.rows + 1
+            }}
+          >
             <div className="flex justify-between items-start w-full absolute top-20">
               <h3 className="text-4xl font-bold tracking-tighter uppercase leading-none">Projects</h3>
             </div>
@@ -1075,7 +1133,13 @@ export default function Page() {
             </div>
           </div>
 
-          <div className={`work-showcase work-showcase-2 absolute inset-0 col-start-3 col-end-8 row-start-1 row-end-6 bg-black opacity-0 text-white border border-white/10 z-50 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+          <div
+            className={`work-showcase work-showcase-2 absolute inset-0 col-start-3 bg-black opacity-0 text-white border border-white/10 z-50 overflow-hidden ${workOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{
+              gridColumnEnd: gridConfig.cols + 1,
+              gridRowStart: 1,
+              gridRowEnd: gridConfig.rows + 1
+            }}
           >
             {/* Close Button */}
             <button
@@ -1116,8 +1180,8 @@ export default function Page() {
                 <span className="font-mono text-[10px] text-white/50">05</span>
               </div>
               <div className="flex-1 mx-6 h-px bg-white/10 relative overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full bg-white transition-all duration-300 ease-out" 
+                <div
+                  className="absolute top-0 left-0 h-full bg-white transition-all duration-300 ease-out"
                   style={{ width: `${activeProject ? (activeProject.number / projects.length) * 100 : 0}%` }}
                 />
               </div>
@@ -1186,7 +1250,14 @@ export default function Page() {
 
           </div>
 
-          <div className={`contactme-1 opacity-0 col-start-1 col-end-8 row-start-1 row-end-4 absolute inset-0 bg-black  z-50 flex flex-col justify-center pl-20 overflow-hidden ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+          <div
+            className={`contactme-1 opacity-0 col-start-1 absolute inset-0 bg-black  z-50 flex flex-col justify-center pl-20 overflow-hidden ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{
+              gridColumnEnd: gridConfig.cols + 1,
+              gridRowStart: 1,
+              gridRowEnd: Math.ceil(gridConfig.rows * 0.6) + 1
+            }}
+          >
             <div className="absolute top-10 left-10 flex flex-col font-mono text-[10px] text-white/50 tracking-[0.2em] gap-1 z-10">
               <p>LAST SYNCED: {lastSyncedTime || "00:00:00"}</p>
               <div className="flex gap-2 text-white/40 mt-1">
@@ -1231,10 +1302,17 @@ export default function Page() {
               </svg>
             </button>
 
-            
+
           </div>
 
-          <div className={`contactme-2 opacity-0 col-start-1 col-end-8 row-start-4 row-end-6 absolute inset-0 bg-[#0d0d0d] border-t border-white/10 z-50 flex flex-col p-8 font-mono text-[11px] text-white/50 tracking-widest ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
+          <div
+            className={`contactme-2 opacity-0 col-start-1 absolute inset-0 bg-[#0d0d0d] border-t border-white/10 z-50 flex flex-col p-8 font-mono text-[11px] text-white/50 tracking-widest ${contactOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+            style={{
+              gridColumnEnd: gridConfig.cols + 1,
+              gridRowStart: Math.ceil(gridConfig.rows * 0.6) + 1,
+              gridRowEnd: gridConfig.rows + 1
+            }}
+          >
             <div className="flex gap-12 mb-6">
               <span className="text-white/30">[ TYPE OF WORK ]</span>
               <button
