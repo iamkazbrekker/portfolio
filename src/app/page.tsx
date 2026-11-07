@@ -1036,13 +1036,11 @@ export default function Page() {
 
 
             <div className="sticky top-45 z-30 w-full bg-black text-white flex flex-col min-h-[calc(80vh-11.25rem)]">
-              <div className="flex flex-row justify-center flex-1">
-                <div className="font-mono font-bold text-3xl text-center uppercase flex flex-col justify-center items-center h-full w-full px-10 py-12 border-b border-white flex-1">
-                  <h1>Building anything and everything that fancies me</h1>
-                </div>
+              <div className="flex-1 flex flex-col justify-center items-center font-mono font-bold text-3xl text-center uppercase px-10 py-12 border-b border-white min-h-0">
+                <h1>Building anything and everything that fancies me</h1>
               </div>
 
-              <div className="py-8 px-4 flex flex-col gap-4">
+              <div className="py-8 px-4 flex flex-col gap-4 shrink-0">
                 <div className="flex justify-between items-center">
                   <div className="h-4.5 w-4.5 bg-white" />
                   <div className="flex flex-row gap-5 text-[15px] justify-between">
